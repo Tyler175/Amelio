@@ -1,11 +1,11 @@
 <template>
-  <div class="col-md-12">
-    <div class="card card-container">
+  <div class="login-page">
+    <div class="form">
 
-      <form name="form" @submit.prevent="handleRegister">
+      <form class="registration-form" name="form" @submit.prevent="handleRegister">
         <div v-if="!successful">
+          <h1>Регистрация</h1>
           <div class="form-group">
-            <h1>Регистрация</h1>
             <input
               v-model="user.username"
               v-validate="'required|min:3|max:20'"
@@ -16,8 +16,8 @@
             />
             <div
               v-if="submitted && errors.has('username')"
-              class="alert-danger"
-            >{{errors.first('username')}}</div>
+              class="alert-error"
+            >Введите логин</div>
           </div>
           <div class="form-group">
             <input
@@ -30,8 +30,8 @@
             />
             <div
               v-if="submitted && errors.has('email')"
-              class="alert-danger"
-            >{{errors.first('email')}}</div>
+              class="alert-error"
+            >Введите почту</div>
           </div>
           <div class="form-group">
             <input
@@ -44,19 +44,25 @@
             />
             <div
               v-if="submitted && errors.has('password')"
-              class="alert-danger"
-            >{{errors.first('password')}}</div>
+              class="alert-error"
+            >Введите пароль</div>
           </div>
           <div class="form-group">
-            <button class="btn btn-primary btn-block">Sign Up</button>
+            <button class="btn">Зарегистрироваться</button>
           </div>
         </div>
+        <p class="registr">Уже есть аккаунт?
+          <router-link to="/login">
+            Войти
+          </router-link>
+
+        </p>
       </form>
 
       <div
         v-if="message"
         class="alert"
-        :class="successful ? 'alert-success' : 'alert-danger'"
+        :class="successful ? 'alert-success' : 'alert-error'"
       >{{message}}</div>
     </div>
   </div>
@@ -110,38 +116,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-label {
-  display: block;
-  margin-top: 10px;
-}
-
-.card-container.card {
-  max-width: 350px !important;
-  padding: 40px 40px;
-}
-
-.card {
-  background-color: #f7f7f7;
-  padding: 20px 25px 30px;
-  margin: 0 auto 25px;
-  margin-top: 50px;
-  -moz-border-radius: 2px;
-  -webkit-border-radius: 2px;
-  border-radius: 2px;
-  -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
-  -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
-  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
-}
-
-.profile-img-card {
-  width: 96px;
-  height: 96px;
-  margin: 0 auto 10px;
-  display: block;
-  -moz-border-radius: 50%;
-  -webkit-border-radius: 50%;
-  border-radius: 50%;
-}
-</style>
