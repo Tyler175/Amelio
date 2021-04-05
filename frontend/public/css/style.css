@@ -1,16 +1,68 @@
 @import url(https://fonts.googleapis.com/css?family=Roboto:300);
 
+.header{
+  box-shadow: 0 2px 9px -1px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0;
+  padding: 0 15% 0 5%;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+.header li{
+  list-style-type: none;
+}
+.header a{
+  text-decoration: none;
+  color: #1a1a1a;
+
+}
+
+.header-menu{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-item{
+  margin-left: 40px;
+  font-size: 1.5em;
+
+}
+.action{
+
+}
+
+.brand{
+  font-size: 50px;
+  font-weight: bold;
+  margin-right: 70px;
+}
+
 .login-page {
   width: 360px;
   padding: 8% 0 0;
   margin: auto;
 }
+
+.content{
+  background-color: #FFFFFF;
+  max-width: 80%;
+  min-height: 60vh;
+  margin: 0 auto;
+  margin-top: 60px;
+  position: relative;
+  padding: 45px;
+  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+}
+
 .form {
   position: relative;
   z-index: 1;
   background: #FFFFFF;
   max-width: 360px;
-  margin: 0 auto 100px;
+  margin: 0 auto;
   padding: 45px;
   text-align: center;
   box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
@@ -52,42 +104,35 @@
   background: -o-linear-gradient(left, #26cffe, #6c7bfe, #b327fe);
   background: linear-gradient(to right, #26cffe, #6c7bfe, #b327fe);
 }
-.form .registr {
+
+.login-page .form p{
   margin: 15px 0 0;
   color: #b3b3b3;
   font-size: 15px;
 }
 
-.form .message2 {
-  margin: 15px 0 0;
-  color: #b3b3b3;
-  font-size: 15px;
-}
-.form .registr a {
+.login-page .form a{
   color: #b327fe;
   text-decoration: none;
+
 }
 
-.form .registr a:hover {
+.login-page .form a:hover{
   color: #6c7bfe;
 }
-.alert{
+
+.alert-error{
+  margin-top: -10px;
   margin-bottom: 20px;
+  color: #EF3B3A;
 }
-.message2 a {
-  color: #b327fe;
-  text-decoration: none;
-}
-.message2 a:hover {
-  color: #6c7bfe;
-}
+
 .form .forgot {
   display: none;
 }
 .container {
   position: relative;
   z-index: 1;
-  max-width: 300px;
   margin: 0 auto;
 }
 .container:before, .container:after {
@@ -125,11 +170,15 @@ body {
   background: linear-gradient(to left, #06d6e0, #7b71ee, #d920fa);
   background-image: url('../images/bg-01.jpg');
   background-size: 100%;
+  background-repeat: no-repeat;
+  margin: 0;
   font-family: "Roboto", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;      
 }
 
-.header{
-  background-color: rgba(255,255,255,0.5);
+@media screen and (max-width: 980px) {
+  body {
+    background-image: url('../images/bg-02.jpg');
+  }
 }

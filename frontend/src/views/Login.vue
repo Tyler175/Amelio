@@ -3,8 +3,8 @@
     <div class="form">
 
       <form class="login-form" name="form" @submit.prevent="handleLogin">
+        <h1>Вход</h1>
         <div class="form-group">
-          <h1>Вход</h1>
           <input
             v-model="user.username"
             v-validate="'required'"
@@ -15,7 +15,7 @@
           />
           <div
             v-if="errors.has('username')"
-            class="alert alert-danger"
+            class="alert alert-error"
             role="alert"
           >Введите логин</div>
         </div>
@@ -31,18 +31,18 @@
           />
           <div
             v-if="errors.has('password')"
-            class="alert alert-danger"
+            class="alert alert-error"
             role="alert"
           >Введите пароль</div>
         </div>
         <div class="form-group">
-          <button class="btn btn-primary btn-block" :disabled="loading">
-            <span v-show="loading" class="spinner-border spinner-border-sm"></span>
+          <button class="btn" :disabled="loading">
+            <span v-show="loading" class="spinner-border spinner-border-sm"></span><!--Not used yet-->
             <span>Войти</span>
           </button>
         </div>
         <div class="form-group">
-          <div v-if="message" class="alert alert-danger" role="alert">{{message}}</div>
+          <div v-if="message" class="alert alert-error" role="alert">{{message}}</div>
         </div>
         <p class="registr">Нет аккаунта?
           <router-link to="/register">
