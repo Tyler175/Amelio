@@ -7,33 +7,31 @@
         <div class="form-group">
           <input
             v-model="user.username"
-            v-validate="'required'"
+            v-validate="'required|min:3|max:20'"
             type="text"
             class="form-control"
             placeholder="Логин"
-            name="username"
+            name="логин"
           />
           <div
-            v-if="errors.has('username')"
-            class="alert alert-error"
-            role="alert"
-          >Введите логин</div>
+              v-if="errors.has('логин')"
+              class="alert-error"
+          >{{errors.first('логин')}}</div>
         </div>
         <div class="form-group">
 
           <input
             v-model="user.password"
-            v-validate="'required'"
+            v-validate="'required|min:6|max:40'"
             type="password"
             class="form-control"
             placeholder="Пароль"
-            name="password"
+            name="пароль"
           />
           <div
-            v-if="errors.has('password')"
-            class="alert alert-error"
-            role="alert"
-          >Введите пароль</div>
+              v-if="errors.has('пароль')"
+              class="alert-error"
+          >{{errors.first('пароль')}}</div>
         </div>
         <div class="form-group">
           <button class="btn" :disabled="loading">
@@ -42,7 +40,10 @@
           </button>
         </div>
         <div class="form-group">
-          <div v-if="message" class="alert alert-error" role="alert">{{message}}</div>
+          <div v-if="message" class="alert alert-error" role="alert">
+            <div v-if="message === 'Bad credentials'">Неверный логин или пароль</div>
+            <div v-else>{{message}}</div>
+          </div>
         </div>
         <p class="registr">Нет аккаунта?
           <router-link to="/register">

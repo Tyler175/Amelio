@@ -1,26 +1,43 @@
 <template>
   <div class="container">
-    <header class="jumbotron">
-      <h3>
-        <strong>{{currentUser.username}}</strong> Profile
-      </h3>
-    </header>
-    <p>
-      <strong>Token:</strong>
-      {{currentUser.accessToken.substring(0, 20)}} ... {{currentUser.accessToken.substr(currentUser.accessToken.length - 20)}}
-    </p>
-    <p>
-      <strong>Id:</strong>
-      {{currentUser.id}}
-    </p>
-    <p>
-      <strong>Email:</strong>
-      {{currentUser.email}}
-    </p>
-    <strong>Authorities:</strong>
-    <ul>
-      <li v-for="(role,index) in currentUser.roles" :key="index">{{role}}</li>
-    </ul>
+    <div class="content" style="display: flex; justify-content:space-around">
+      <div class="user-menu" style="width: 20%">
+        <li>
+          <router-link to="/profile" @click.prevent>Мой профиль</router-link>
+        </li>
+        <li>
+          <router-link v-if="currentUser" to="/user">Задачи</router-link>
+        </li>
+        <li v-if="showModeratorBoard">
+          <router-link to="/mod">Панель модератора</router-link>
+        </li>
+        <li v-if="showAdminBoard">
+          <router-link to="/admin">Панель администратора</router-link>
+        </li>
+      </div>
+
+      <div style="width: 50%">
+        <h3>
+          Привет, <strong>{{currentUser.username}}</strong>
+        </h3>
+        <p>
+          <strong>Id:</strong>
+          {{currentUser.id}}
+        </p>
+        <p>
+          <strong>Email:</strong>
+          {{currentUser.email}}
+        </p>
+        <strong>Authorities:</strong>
+        <ul>
+          <li v-for="(role,index) in currentUser.roles" :key="index">{{role}}</li>
+        </ul>
+        <a class="logout" href @click.prevent="logOut">
+          Выйти
+        </a>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -30,6 +47,26 @@ export default {
   computed: {
     currentUser() {
       return this.$store.state.auth.user;
+    },
+    showAdminBoard() {
+      if (this.currentUser && this.currentUser.roles) {
+        return this.currentUser.roles.includes('ROLE_ADMIN');
+      }
+
+      return false;
+    },
+    showModeratorBoard() {
+      if (this.currentUser && this.currentUser.roles) {
+        return this.currentUser.roles.includes('ROLE_MODERATOR');
+      }
+
+      return false;
+    }
+  },
+  methods: {
+    logOut() {
+      this.$store.dispatch('auth/logout');
+      this.$router.push('/login');
     }
   },
   mounted() {

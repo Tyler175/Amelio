@@ -12,12 +12,12 @@
               type="text"
               class="form-control"
               placeholder="Имя"
-              name="username"
+              name="логин"
             />
             <div
-              v-if="submitted && errors.has('username')"
+              v-if="submitted && errors.has('логин')"
               class="alert-error"
-            >Введите логин</div>
+            >{{errors.first('логин')}}</div>
           </div>
           <div class="form-group">
             <input
@@ -26,12 +26,12 @@
               type="email"
               class="form-control"
               placeholder="Почта"
-              name="email"
+              name="почта"
             />
             <div
-              v-if="submitted && errors.has('email')"
+              v-if="submitted && errors.has('почта')"
               class="alert-error"
-            >Введите почту</div>
+            >{{errors.first('почта')}}</div>
           </div>
           <div class="form-group">
             <input
@@ -40,31 +40,58 @@
               type="password"
               class="form-control"
               placeholder="Пароль"
-              name="password"
+              name="пароль"
             />
             <div
-              v-if="submitted && errors.has('password')"
+              v-if="submitted && errors.has('пароль')"
               class="alert-error"
-            >Введите пароль</div>
+            >{{errors.first('пароль')}}</div>
+          </div>
+          <div class="form-group">
+            <input
+                v-model="password2"
+                v-validate="'required'"
+                type="password"
+                class="form-control"
+                placeholder="Подтвердите пароль"
+                name="подтверждения пароля"
+            />
+            <div
+                v-if="submitted && errors.has('подтверждения пароля')"
+                class="alert-error"
+            >{{errors.first('подтверждения пароля')}}</div>
+            <div
+                v-if="notSamePasswords"
+                class="alert-error"
+            >Пароли не совпадают</div>
           </div>
           <div class="form-group">
             <button class="btn">Зарегистрироваться</button>
           </div>
         </div>
-        <p class="registr">Уже есть аккаунт?
-          <router-link to="/login">
-            Войти
-          </router-link>
 
-        </p>
       </form>
 
       <div
         v-if="message"
         class="alert"
-        :class="successful ? 'alert-success' : 'alert-error'"
-      >{{message}}</div>
+        :class="successful ? 'alert-success' : 'alert-error'">
+        {{message}}
+      </div>
+      <p v-if="!successful" class="registr">Уже есть аккаунт?
+        <router-link to="/login">
+          Войти
+        </router-link>
+
+      </p>
+      <p v-else class="registr">
+        <router-link to="/login">
+          Войти
+        </router-link>
+
+      </p>
     </div>
+
   </div>
 </template>
 
@@ -76,6 +103,7 @@ export default {
   data() {
     return {
       user: new User('', '', ''),
+      password2: '',
       submitted: false,
       successful: false,
       message: ''
@@ -84,7 +112,14 @@ export default {
   computed: {
     loggedIn() {
       return this.$store.state.auth.status.loggedIn;
-    }
+    },
+    notSamePasswords () {
+      if (this.user.password !== '' && this.password2 !== '') {
+        return (this.user.password !== this.password2)
+      } else {
+        return false
+      }
+    },
   },
   mounted() {
     if (this.loggedIn) {
@@ -96,7 +131,7 @@ export default {
       this.message = '';
       this.submitted = true;
       this.$validator.validate().then(isValid => {
-        if (isValid) {
+        if (isValid && !this.notSamePasswords) {
           this.$store.dispatch('auth/register', this.user).then(
             data => {
               this.message = data.message;

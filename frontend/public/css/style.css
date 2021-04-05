@@ -31,7 +31,7 @@
 
 }
 .action{
-
+  display: flex;
 }
 
 .brand{
@@ -55,6 +55,23 @@
   position: relative;
   padding: 45px;
   box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+}
+
+
+.user-menu li{
+  list-style-type:none;
+  font-size: 1.5em;
+  padding: 10px;
+}
+
+.user-menu li a{
+  text-decoration: none;
+  color: #6c7bfe;
+
+}
+
+.user-menu li a:hover {
+  color: #7b71ee;
 }
 
 .form {
@@ -90,6 +107,7 @@
   width: 100%;
   border: 0;
   padding: 15px;
+  margin-bottom: 15px;
   color: #FFFFFF;
   font-size: 14px;
   font-weight: bold;
@@ -106,7 +124,7 @@
 }
 
 .login-page .form p{
-  margin: 15px 0 0;
+  margin: 0;
   color: #b3b3b3;
   font-size: 15px;
 }
@@ -119,6 +137,21 @@
 
 .login-page .form a:hover{
   color: #6c7bfe;
+}
+
+.logout{
+  text-decoration: none;
+  margin-top:50px;
+  font-size: 20px;
+  padding: 10px 15px;
+  display: block;
+  width: 70px;
+  text-align: center;
+  background-color: #6c7bfe;
+}
+
+.logout:hover{
+  background-color: #7b71ee;
 }
 
 .alert-error{

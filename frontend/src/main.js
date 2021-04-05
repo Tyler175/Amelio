@@ -2,8 +2,11 @@ import Vue from 'vue';
 import App from './App.vue';
 import { router } from './router';
 import store from './store';
-import VeeValidate from 'vee-validate';
 import Vuex from 'vuex';
+import ru from 'vee-validate/dist/locale/ru';
+import VeeValidate, { Validator } from 'vee-validate';
+
+
 /*
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -22,6 +25,7 @@ library.add(faHome, faUser, faUserPlus, faSignInAlt, faSignOutAlt);
 Vue.config.productionTip = false;
 
 Vue.use(VeeValidate);
+Validator.localize('ru', ru);
 //Vue.component('font-awesome-icon', FontAwesomeIcon);
 
 Vue.use(Vuex);
