@@ -1,12 +1,21 @@
 <template>
   <div class="container">
     <div class="content" style="display: flex; justify-content:space-around">
-      <div class="user-menu" style="width: 20%">
+      <div v-if="currentUser" class="user-menu" style="width: 20%">
         <li>
-          <router-link to="/profile" @click.prevent>Мой профиль</router-link>
+          <router-link to="/today">To Do</router-link>
         </li>
         <li>
-          <router-link v-if="currentUser" to="/user">Задачи</router-link>
+          <router-link to="/tasks">Задачи</router-link>
+        </li>
+        <li>
+          <router-link to="/user">Статистика</router-link>
+        </li>
+        <li>
+          <router-link to="/projects">Проекты</router-link>
+        </li>
+        <li>
+          <router-link to="/profile" @click.prevent>Мой профиль</router-link>
         </li>
         <li v-if="showModeratorBoard">
           <router-link to="/mod">Панель модератора</router-link>

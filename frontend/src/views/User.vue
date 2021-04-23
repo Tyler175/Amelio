@@ -37,7 +37,7 @@
 import UserService from '../services/user.service';
 
 export default {
-  name: 'Moderator',
+  name: 'User',
   data() {
     return {
       content: ''
@@ -63,7 +63,7 @@ export default {
     }
   },
   mounted() {
-    UserService.getModeratorBoard().then(
+    UserService.getUserBoard().then(
       response => {
         this.content = response.data;
       },

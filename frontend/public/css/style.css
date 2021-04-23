@@ -30,6 +30,8 @@
   font-size: 1.5em;
 
 }
+
+
 .action{
   display: flex;
 }
@@ -39,6 +41,8 @@
   font-weight: bold;
   margin-right: 70px;
 }
+
+
 
 .login-page {
   width: 360px;
@@ -74,6 +78,80 @@
   color: #7b71ee;
 }
 
+/*                              EDITOR      EDITOR      EDITOR*/
+.cover{
+  margin: auto;
+  position: fixed;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background-color:rgba(0, 0, 0, 0);
+  z-index: 100;
+}
+
+.editor{
+  position: fixed;
+  padding: 25px 45px;
+  top:50%;
+  left:60%;
+  transform:translate(-50%, -50%);
+  width: 50%;
+  height: 50%;
+  background-color: #FFFFFF;
+  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+}
+
+.editor h1,h3{
+  margin-top: 0px;
+  margin-bottom: 10px;
+}
+
+.fields{
+  width:90%;
+  display: flex;
+  /*justify-content: space-between;*/
+  flex-direction: column;
+}
+.fields input{
+  font-family: "Roboto", sans-serif;
+  outline: 0;
+  background: #f2f2f2;
+  width: 100%;
+  border: 0;
+  margin: 0 0 15px;
+  padding: 15px;
+  box-sizing: border-box;
+  font-size: 16px;
+}
+.fields textarea{
+  font-family: "Roboto", sans-serif;
+  outline: 0;
+  background: #f2f2f2;
+  width: 100%;
+  border: 0;
+  margin: 0 0 15px;
+  padding: 15px;
+  box-sizing: border-box;
+  font-size: 16px;
+  resize: none;
+}
+
+.editor button{
+  margin-right: 30px;
+}
+
+.close{
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 25px 45px auto auto;
+  background-color: #6c7bfe;
+  border: 0px solid;
+  border-radius: 5px;
+  font-size: 30px;
+}
+.close:hover{
+  background-color: #b327fe;
+}
+
 .form {
   position: relative;
   z-index: 1;
@@ -95,7 +173,7 @@
   box-sizing: border-box;
   font-size: 16px;
 }
-.form button {
+.form button, .editor button {
   font-family: "Roboto", sans-serif;
   text-transform: uppercase;
   outline: 0;
@@ -115,12 +193,16 @@
   transition: all 0.3 ease;
   cursor: pointer;
 }
-.form button:hover,.form button:active,.form button:focus {
+.form button:hover,.form button:active,.form button:focus, .editor button:hover {
   background: #b327fe;
   background: -webkit-linear-gradient(left, #26cffe, #6c7bfe, #b327fe);
   background: -moz-linear-gradient(left, #26cffe, #6c7bfe, #b327fe);
   background: -o-linear-gradient(left, #26cffe, #6c7bfe, #b327fe);
   background: linear-gradient(to right, #26cffe, #6c7bfe, #b327fe);
+}
+
+.editor button{
+  margin-right: 30px;
 }
 
 .login-page .form p{
@@ -163,8 +245,9 @@
 .form .forgot {
   display: none;
 }
+
 .container {
-  position: relative;
+  /*position: relative;*/
   z-index: 1;
   margin: 0 auto;
 }
