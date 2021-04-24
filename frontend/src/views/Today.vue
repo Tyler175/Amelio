@@ -1,34 +1,55 @@
 <template>
   <div class="container">
-    <div class="content" style="display: flex; justify-content:space-around">
-      <div v-if="currentUser" class="user-menu" style="width: 20%">
-        <li>
-          <router-link to="/today">To Do</router-link>
-        </li>
-        <li>
-          <router-link to="/tasks">Задачи</router-link>
-        </li>
-        <li>
-          <router-link to="/user">Статистика</router-link>
-        </li>
-        <li>
-          <router-link to="/projects">Проекты</router-link>
-        </li>
-        <li>
-          <router-link to="/profile" @click.prevent>Мой профиль</router-link>
-        </li>
-        <li v-if="showModeratorBoard">
-          <router-link to="/mod">Панель модератора</router-link>
-        </li>
-        <li v-if="showAdminBoard">
-          <router-link to="/admin">Панель администратора</router-link>
-        </li>
-      </div>
 
-      <div style="width: 50%">
-        <h3>{{content}}</h3>
+    <div v-if="currentUser" class="user-menu">
+      <li>
+        <router-link to="/today">To Do</router-link>
+      </li>
+      <li>
+        <router-link to="/tasks">Задачи</router-link>
+      </li>
+      <li>
+        <router-link to="/user">Статистика</router-link>
+      </li>
+      <li>
+        <router-link to="/projects">Проекты</router-link>
+      </li>
+      <li>
+        <router-link to="/profile" @click.prevent>Мой профиль</router-link>
+      </li>
+      <li v-if="showAdminBoard">
+        <router-link to="/admin">Панель администратора</router-link>
+      </li>
+    </div>
+    <div class="content">
+      <div>
+
+        <h1>Текущая задача</h1>
+        <div class="row">
+          <div class="task">Выбранная задача</div>
+          <div class="timer"> 05:15 &nbsp;</div>
+        </div>
+        <button class="button-g">Перерыв</button>
+        <button class="button-b">Готово</button>
+        <div class="row">
+          <h1>Задачи на сегодня</h1>
+          <button class="button-p">Добавить задачу</button>
+        </div>
+        <div class="row">
+          <div class="task">Задача один</div>
+          <button class="button-g">Начать</button>
+          <button class="button-b">Готово</button>
+        </div>
+        <div class="row">
+          <div class="task">Задача два</div>
+          <button class="button-g">Начать</button>
+          <button class="button-b">Готово</button>
+        </div>
+        <!-- END -->
+
       </div>
     </div>
+
 
   </div>
 </template>

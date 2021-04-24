@@ -1,8 +1,8 @@
 <template>
   <div class="container">
     <v-taskEdit v-if='!isHidden' v-on:hide="isHidden = true" :task="task"></v-taskEdit>
-    <div class="content" style="display: flex; justify-content:space-around">
-      <div v-if="currentUser" class="user-menu" style="width: 20%">
+
+      <div v-if="currentUser" class="user-menu">
         <li>
           <router-link to="/today">To Do</router-link>
         </li>
@@ -25,7 +25,8 @@
           <router-link to="/admin">Панель администратора</router-link>
         </li>
       </div>
-      <div style="width: 50%">
+    <div class="content">
+      <div>
         <select v-model="selected">
           <option v-for="task in tasks" :key="task.id" @click="openEdit(selected.id)" v-bind:value="task.parent.id">
             <i>({{ task.parent.id }})</i> {{ task.parent.task_name }}
@@ -44,6 +45,7 @@
               </select>
           </option>
         </select>
+        <button @click="openEdit"> OPEN</button>
 
         {{content}}
       </div>
@@ -107,8 +109,8 @@ export default {
     }
   },
   methods: {
-    openEdit(id){
-      UserService.getTaskById(id).then(
+    openEdit(){
+      UserService.getTaskById(this.task.id).then(
           response => {
             this.task = response.data;
           },

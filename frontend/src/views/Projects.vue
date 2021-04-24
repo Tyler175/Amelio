@@ -1,7 +1,7 @@
 <template>
   <div class="container">
-    <div class="content" style="display: flex; justify-content:space-around">
-      <div v-if="currentUser" class="user-menu" style="width: 20%">
+
+      <div v-if="currentUser" class="user-menu">
         <li>
           <router-link to="/today">To Do</router-link>
         </li>
@@ -24,8 +24,8 @@
           <router-link to="/admin">Панель администратора</router-link>
         </li>
       </div>
-
-      <div style="width: 50%">
+    <div class="content">
+      <div>
         <h3>{{content}}</h3>
       </div>
     </div>
