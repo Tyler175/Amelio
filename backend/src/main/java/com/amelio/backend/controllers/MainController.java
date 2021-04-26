@@ -1,5 +1,6 @@
 package com.amelio.backend.controllers;
 
+import com.amelio.backend.models.Task;
 import com.amelio.backend.models.User;
 import com.amelio.backend.repository.TaskRepository;
 import com.amelio.backend.repository.UserRepository;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
+import java.util.List;
 import java.util.Optional;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -30,8 +32,9 @@ public class MainController {
 
 	@GetMapping("/today")
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-	public String todayTask() {
-		return "Задачи на сегодня.";
+	public List<Task> todayTask(Authentication authentication) {
+		List<Task> tasks = taskRepo.findAllUndoneChildren(authentication.getName());
+		return tasks;
 	}
 
 	@GetMapping("/user")

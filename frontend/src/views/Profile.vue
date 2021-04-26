@@ -1,3 +1,10 @@
+<style scoped>
+  .button-g{
+    width: auto;
+    height: auto;
+    padding: 10px 15px;
+  }
+</style>
 <template>
   <div class="container">
 
@@ -15,7 +22,7 @@
           <router-link to="/projects">Проекты</router-link>
         </li>
         <li>
-          <router-link to="/profile" @click.prevent>Мой профиль</router-link>
+          <router-link to="/profile" class="active" @click.prevent>Мой профиль</router-link>
         </li>
         <li v-if="showModeratorBoard">
           <router-link to="/mod">Панель модератора</router-link>
@@ -26,17 +33,26 @@
       </div>
     <div class="content">
       <div>
-        <h3>
-          Привет, <strong>{{currentUser.username}}</strong>
-        </h3>
-        <p>
-          <strong>Id:</strong>
-          {{currentUser.id}}
-        </p>
-        <p>
-          <strong>Email:</strong>
-          {{currentUser.email}}
-        </p>
+        <div class="row" style="margin-bottom: 20px ">
+          <div class="photo" >Фото</div>
+          <div class="ras">
+            <div class="inf"> Имя: {{currentUser.username}}</div>
+            <div class="inf"> Контактные данные: {{currentUser.email}}</div>
+            <div class="inform">О себе</div>
+          </div>
+        </div>
+        <div class="changepass">
+          <div>
+            <div class="pas">Пароль:</div>
+            <div class="pas">Новый пароль:</div>
+            <div class="pas">Повторите новый пароль:</div>
+            <div class="button-g">Сменить пароль</div>
+          </div>
+          <div class="block">
+            <div class="pas">Ваша почта: {{currentUser.email}}</div>
+            <div class="button-g">Сменить адрес электронной почты</div>
+          </div>
+        </div>
         <strong>Authorities:</strong>
         <ul>
           <li v-for="(role,index) in currentUser.roles" :key="index">{{role}}</li>
@@ -44,6 +60,8 @@
         <a class="logout" href @click.prevent="logOut">
           Выйти
         </a>
+        <!-- END -->
+
       </div>
     </div>
 

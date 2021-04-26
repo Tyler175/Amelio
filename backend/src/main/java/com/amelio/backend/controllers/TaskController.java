@@ -24,10 +24,10 @@ public class TaskController {
     @GetMapping
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     public List<ChildTask> allTasks(Authentication authentication) {
-        List<Task> parents = taskRepo.findAllByUsername(authentication.getName());
+        List<Task> parents = taskRepo.findAllByUsernameAndParentIsNullAndTaskCompleteFalse(authentication.getName());
         List<ChildTask> allTask = new ArrayList<ChildTask>();
         for (Task parent: parents) {
-            allTask.add(new ChildTask(parent,taskRepo.findAllByParent(parent.getId())));
+            allTask.add(new ChildTask(parent,taskRepo.findAllByParentAndTaskCompleteFalse(parent.getId())));
         }
 
         return allTask;

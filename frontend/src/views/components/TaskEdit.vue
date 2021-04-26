@@ -23,6 +23,7 @@
       <div class = "fields" style="max-width: 600px; flex-direction: row;">
         <button type="button" @click="save"><span>Сохранить</span></button>
         <button type="button" v-on:click="$emit('hide')"><span>Отменить</span></button>
+        <button type="button" @click="deleteTask"><span>Удалить</span></button>
       </div>
       {{message}}
 
@@ -36,7 +37,7 @@ import UserService from '../../services/user.service';
 
 export default {
   name: 'TaskEdit',
-  props: ['task'],
+  props: ['task','post','put','del'],
   data() {
     return {
       message: ''
@@ -54,7 +55,8 @@ export default {
       if (this.task.id){
         UserService.putTask(this.task).then(
             response => {
-              this.message = response.data;
+              this.put(response.data);
+              this.message = 'Задача сохранена!'
             },
             error => {
               this.message =
@@ -64,10 +66,27 @@ export default {
             }
         );
       } else{
-        this.task.username = this.currentUser().username;
+        this.task.username = this.currentUser.username;
         UserService.postTask(this.task).then(
             response => {
-              this.message = response.data;
+              this.post(response.data);
+              this.message = 'Задача сохранена!'
+            },
+            error => {
+              this.message =
+                  (error.response && error.response.data && error.response.data.message) ||
+                  error.message ||
+                  error.toString();
+            }
+        );
+      }
+    },
+    deleteTask(){
+        UserService.delTask(this.task.id).then(
+            response => {
+              this.del(this.task);
+              response.data;
+              this.message = 'Задача удалена!'
             },
             error => {
               this.message =
@@ -78,6 +97,5 @@ export default {
         );
       }
     }
-  }
 };
 </script>

@@ -100,7 +100,77 @@
   color: #7b71ee;
 
 }
+/*          PROFILE         */
+
+.ras{
+  display: block;
+  margin: 15px 60px;
+  float:left;
+}
+.block{
+  display: block;
+  padding: 0 50px 15px 100px;
+  float:left;
+}
+
+.photo{
+  font-family: "Roboto", sans-serif;
+  outline: 0;
+  background-color: #DCDCDC;
+  width: 150px;
+  height: 200px;
+  border: 0;
+  padding: 15px;
+  box-sizing: border-box;
+  font-size: 16px;
+  background-color: rgba(111, 122, 237, 0.2);
+}
+.inform{
+  font-family: "Roboto", sans-serif;
+  outline: 0;
+  background-color: #DCDCDC;
+  width: 450px;
+  height: 135px;
+  border: 0;
+  text-align: left;
+  padding: 15px;
+  box-sizing: border-box;
+  font-size: 16px;
+  background-color: rgba(111, 122, 237, 0.2);
+}
+
+.pas{
+  font-size: 1.2em;
+  font-family: "Roboto", serif;
+  font-weight: bold;
+  padding: 0 10px 15px 0;
+}
+.changepass{
+  display:flex;
+  margin: 15px 0;
+}
+.inf{
+  font-size: 1.2em;
+  font-family: "Roboto", serif;
+  font-weight: bold;
+  text-align: left;
+  padding: 0 30px 10px 0;
+}
+
 /* 								TASK						TASK			TASK*/
+.tasker{
+  font-family: "Roboto", sans-serif;
+  outline: 0;
+  background-color: #DCDCDC;
+  width: 180px;
+  border: 0;
+  padding: 15px;
+  box-sizing: border-box;
+  font-size: 16px;
+  border-radius: 5px;
+  background-color: rgba(111, 122, 237, 0.2);
+}
+
 .task{
   min-height: 30px;
   width: 55%;
@@ -124,6 +194,20 @@
 }
 */
 
+.number{
+  min-height: 30px;
+  width: 80px;
+  text-align: center;
+  background-color: #DCDCDC;
+  list-style-type: none;
+  font-size: 1.3em;
+  font-family: "Roboto", serif;
+  font-weight: bold;
+  padding: 10px 5px;
+  border-radius: 5px;
+  margin-right: 25px;
+  background-color: rgba(111, 122, 237, 0.2);
+}
 .row{
   display:flex;
   margin: 15px 0;
@@ -138,7 +222,15 @@
   text-align: center;
 }
 
-.button-g, .button-b, .button-p{
+.label{
+  font-size: 1.2em;
+  font-family: "Roboto", serif;
+  font-weight: bold;
+  text-align: right;
+  padding: 0 10px 0 30px;
+}
+
+.button-g, .button-b, .button-p, .button-s{
   width: 125px;
   height: 30px;
   padding: 0 15px;
@@ -166,8 +258,19 @@
 .button-b:hover{
   background-color: #8919E1;
 }
+.button-s{
+  margin-right: 25px;
+  background-color: #669CEC;
+  width: 280px;
+  height: 30px;
+}
+.button-s:hover{
+  background-color: #8919E1;
+}
+
 .button-p{
-  width: 300px;
+  width: 220px;
+  height: 60px;
   margin-left: 25px;
   color: #ffffff;
   background-color: #C519E1;
@@ -344,7 +447,37 @@
 .form .forgot {
   display: none;
 }
+.active{
+  color:#CD6AB7 !important;
+  font-weight: bolder;
+  cursor: auto !important;
+}
+.tab{
+  padding: 5px 30px;
+  border: 2px solid black;
+  border-radius: 15px 15px 0 0;
+  cursor: pointer;
+}
+.table{
+  display: block;
+  padding: 0 5px;
+  border: 2px solid black;
+  border-radius: 0 5px 5px 5px;
+  margin-top: -16px;
+  margin-bottom: 30px;
+}
 
+.hidden{
+  display: none;
+}
+
+.time-list{
+  margin: 0 auto;
+  padding-left: 0;
+}
+.time-list li{
+  list-style-type: none;
+}
 .container {
   /*position: relative;*/
   z-index: 1;

@@ -15,10 +15,10 @@
           <router-link to="/projects">Проекты</router-link>
         </li>
         <li>
-          <router-link to="/profile" @click.prevent>Мой профиль</router-link>
+          <router-link to="/profile">Мой профиль</router-link>
         </li>
         <li v-if="showModeratorBoard">
-          <router-link to="/mod">Панель модератора</router-link>
+          <router-link to="/mod" class="active" @click.prevent>Панель модератора</router-link>
         </li>
         <li v-if="showAdminBoard">
           <router-link to="/admin">Панель администратора</router-link>

@@ -1,13 +1,17 @@
+<style scoped>
+
+</style>
 <template>
   <div class="container">
-    <v-taskEdit v-if='!isHidden' v-on:hide="isHidden = true" :task="task"></v-taskEdit>
+    <v-taskEdit v-if='!isHidden' v-on:hide="isHidden = true"
+                :task="task" :post="post" :put="put" :del="del"></v-taskEdit>
 
-      <div v-if="currentUser" class="user-menu">
+    <div v-if="currentUser" class="user-menu">
         <li>
           <router-link to="/today">To Do</router-link>
         </li>
         <li>
-          <router-link to="/tasks">Задачи</router-link>
+          <router-link to="/tasks" class="active" @click.prevent>Задачи</router-link>
         </li>
         <li>
           <router-link to="/user">Статистика</router-link>
@@ -16,7 +20,7 @@
           <router-link to="/projects">Проекты</router-link>
         </li>
         <li>
-          <router-link to="/profile" @click.prevent>Мой профиль</router-link>
+          <router-link to="/profile">Мой профиль</router-link>
         </li>
         <li v-if="showModeratorBoard">
           <router-link to="/mod">Панель модератора</router-link>
@@ -27,36 +31,21 @@
       </div>
     <div class="content">
       <div>
-        <select v-model="selected">
-          <option v-for="task in tasks" :key="task.id" @click="openEdit(selected.id)" v-bind:value="task.parent.id">
-            <i>({{ task.parent.id }})</i> {{ task.parent.task_name }}
-            <span>
-              <input type="button" value="Готово"/>
-              <input type="button" value="X"/>
-            </span>
-              <select v-model="selected">
-              <option  v-for="child in task.children" :key="child.id" @click="openEdit(selected.id)" v-bind:value="child.id">
-                <i>({{ child.id }})</i> {{ child.task_name }}
-                <span>
-                  <input type="button" value="Готово"/>
-                  <input type="button" value="X"/>
-                </span>
-            </option>
-              </select>
-          </option>
-        </select>
-        <button @click="openEdit"> OPEN</button>
+        <ul>
+            <v-taskRow v-for="task in tasks" :key="task.id" :task="task" :editMethod="openEdit" :del="del"></v-taskRow>
+        </ul>
+        <button class="button-p" @click="openEdit">Добавить задачу</button>
 
         {{content}}
       </div>
     </div>
-
   </div>
 </template>
 
 <script>
 import UserService from '../services/user.service';
 import TaskEdit from "@/views/components/TaskEdit.vue";
+import TaskRow from "@/views/components/TaskRow.vue";
 
 export default {
   name: 'Tasks',
@@ -65,13 +54,12 @@ export default {
       isHidden: true,
       tasks: [],
       content: '',
-      task_id: 0,
-      selected: null,
       task: {}
     };
   },
   components:{
-    'v-taskEdit' : TaskEdit
+    'v-taskEdit' : TaskEdit,
+    'v-taskRow' : TaskRow
   },
   computed: {
     currentUser() {
@@ -96,6 +84,8 @@ export default {
     UserService.getTasks().then(
       response => {
         this.tasks = response.data;
+        // eslint-disable-next-line no-console
+        //console.log(this.tasks);
       },
       error => {
         this.content =
@@ -109,20 +99,38 @@ export default {
     }
   },
   methods: {
-    openEdit(){
-      UserService.getTaskById(this.task.id).then(
-          response => {
-            this.task = response.data;
-          },
-          error => {
-            this.content =
-                (error.response && error.response.data && error.response.data.message) ||
-                error.message ||
-                error.toString();
-          }
-      );
+    openEdit(task){
+      this.task = task;
       this.isHidden = false;
+    },
+    post(task){
+      if(task.parent){
+        let i = this.tasks.findIndex(item => item.parent.id == task.parent);
+        this.tasks[i].children.push(task);
+      }else{
+        this.tasks.push({parent: task, children: []});
+      }
+    },
+    put(task){
+      if(task.parent){
+        let i = this.tasks.findIndex(item => item.parent.id == task.parent);
+        this.tasks[i].children[this.tasks[i].children.findIndex(item => item.id == task.id)] = task;
+      }else{
+        this.tasks[this.tasks.findIndex(item => item.parent.id == task.id)].parent = task;
+      }
+    },
+    del(task){
+      if(task.parent){
+        let i = this.tasks.findIndex(item => item.parent.id == task.parent);
+        this.tasks[i].children.splice(this.tasks[i].children.findIndex(item => item.id == task.id),1);
+      }else{
 
+        this.tasks.splice(this.tasks.findIndex(item => item.parent.id == task.id),1);
+      }
+    },
+    test(){
+      // eslint-disable-next-line no-console
+      console.log(this.tasks);
     }
   }
 };

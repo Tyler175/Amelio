@@ -12,10 +12,10 @@
           <router-link to="/user">Статистика</router-link>
         </li>
         <li>
-          <router-link to="/projects">Проекты</router-link>
+          <router-link to="/projects" class="active" @click.prevent>Проекты</router-link>
         </li>
         <li>
-          <router-link to="/profile" @click.prevent>Мой профиль</router-link>
+          <router-link to="/profile">Мой профиль</router-link>
         </li>
         <li v-if="showModeratorBoard">
           <router-link to="/mod">Панель модератора</router-link>
@@ -26,6 +26,21 @@
       </div>
     <div class="content">
       <div>
+
+        <div class="row">
+          <h1>Проекты</h1>
+          <button class="button-p">Создать проект</button>
+        </div>
+        <div class="row">
+          <div class="task">Проект первый, мой</div>
+          <button class="button-g">Изменить</button>
+          <button class="button-b">Удалить</button>
+        </div>
+        <div class="row">
+          <div class="task">Проект второй, чужой</div>
+          <button class="button-s">Покинуть проект</button>
+        </div>
+        <!-- END -->
         <h3>{{content}}</h3>
       </div>
     </div>

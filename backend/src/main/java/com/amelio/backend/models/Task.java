@@ -1,5 +1,7 @@
 package com.amelio.backend.models;
 
+import org.springframework.beans.factory.annotation.Value;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -8,6 +10,10 @@ import java.util.List;
 
 @Entity
 @Table(	name = "user_tasks")
+@NamedQuery(name = "Task.findAllUndoneChildren",
+		query = "select t1 from Task t1 where not exists (select t2 from Task t2 where t2.parent = t1.id) and t1.username = ?1 and t1.taskComplete = false")
+
+
 public class Task {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,13 +38,16 @@ public class Task {
 
 	private int task_work;
 
+	private boolean taskComplete;
+
 	public Task() {
 	}
 
-	public Task(@NotBlank @Size(max = 100) String task_name, @Size(max = 700) String task_description, String username, Date task_start, Date task_end, int task_work) {
+	public Task(@NotBlank @Size(max = 100) String task_name, @Size(max = 700) String task_description, String username, Long parent, Date task_start, Date task_end, int task_work) {
 		this.task_name = task_name;
 		this.task_description = task_description;
 		this.username = username;
+		this.parent = parent;
 		this.task_start = task_start;
 		this.task_end = task_end;
 		this.task_work = task_work;
@@ -114,5 +123,13 @@ public class Task {
 
 	public void setWork_start(Date work_start) {
 		this.work_start = work_start;
+	}
+
+	public boolean getTaskComplete() {
+		return taskComplete;
+	}
+
+	public void setTaskComplete(boolean taskComplete) {
+		this.taskComplete = taskComplete;
 	}
 }

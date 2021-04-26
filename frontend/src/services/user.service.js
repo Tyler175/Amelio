@@ -19,6 +19,7 @@ class UserService {
     return axios.get(API_URL + 'tasks/' + id, { headers: authHeader() });
   }
   postTask(task){
+    if (task.taskComplete === null) {task.taskComplete = false}
     return axios.post(API_URL + 'tasks', {
       task_name: task.task_name,
       task_description: task.task_description,
@@ -27,7 +28,8 @@ class UserService {
       task_end: task.task_end,
       task_work: task.task_work,
       parent: task.parent,
-      work_start: task.work_start
+      work_start: task.work_start,
+      taskComplete: task.taskComplete
     }, { headers: authHeader() })
   }
   putTask(task){
@@ -39,9 +41,15 @@ class UserService {
       task_end: task.task_end,
       task_work: task.task_work,
       parent: task.parent,
-      work_start: task.work_start
+      work_start: task.work_start,
+      taskComplete: task.taskComplete
     }, { headers: authHeader() })
   }
+  delTask(id){
+    return axios.delete(API_URL + 'tasks/' + id, { headers: authHeader() });
+  }
+
+
 
   getUserBoard() {
     return axios.get(API_URL + 'user', { headers: authHeader() });
