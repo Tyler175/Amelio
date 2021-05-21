@@ -9,7 +9,7 @@
           <router-link to="/tasks">Задачи</router-link>
         </li>
         <li>
-          <router-link to="/user">Статистика</router-link>
+          <router-link to="/statistics">Статистика</router-link>
         </li>
         <li>
           <router-link to="/projects" class="active" @click.prevent>Проекты</router-link>
@@ -29,17 +29,12 @@
 
         <div class="row">
           <h1>Проекты</h1>
-          <button class="button-p">Создать проект</button>
+          <button class="button-p" @click="createProject">Новый проект</button>
         </div>
-        <div class="row">
-          <div class="task">Проект первый, мой</div>
-          <button class="button-g">Изменить</button>
-          <button class="button-b">Удалить</button>
-        </div>
-        <div class="row">
-          <div class="task">Проект второй, чужой</div>
-          <button class="button-s">Покинуть проект</button>
-        </div>
+        <div class="row"><h2>Мои проекты</h2></div>
+        <v-projectRow v-for="project in user_projects" :key="project.id" :project="project" :btn="'Удалить'" :action="del"></v-projectRow>
+        <div class="row"><h2>Проекты</h2></div>
+        <v-projectRow v-for="project in projects" :key="project.id" :project="project" :btn="'Покинуть проект'" :action="del"></v-projectRow>
         <!-- END -->
         <h3>{{content}}</h3>
       </div>
@@ -50,13 +45,19 @@
 
 <script>
 import UserService from '../services/user.service';
+import ProjectRow from "@/views/components/ProjectRow";
 
 export default {
   name: 'Projects',
   data() {
     return {
-      content: ''
+      content: '',
+      user_projects: [],
+      projects: []
     };
+  },
+  components:{
+    'v-projectRow' : ProjectRow
   },
   computed: {
     currentUser() {
@@ -80,7 +81,7 @@ export default {
   mounted() {
     UserService.getProjects().then(
       response => {
-        this.content = response.data;
+        this.projects = response.data;
       },
       error => {
         this.content =
@@ -89,8 +90,44 @@ export default {
           error.toString();
       }
     );
+    UserService.getUserProjects().then(
+        response => {
+          this.user_projects = response.data;
+        },
+        error => {
+          this.content =
+              (error.response && error.response.data && error.response.data.message) ||
+              error.message ||
+              error.toString();
+        }
+    );
     if (!this.currentUser) {
       this.$router.push('/login');
+    }
+  },
+  methods:{
+    createProject(){
+      UserService.postProject().then(
+          response => {
+            this.$router.push('/project/' + response.data.id);
+          },
+          error => {
+            this.content =
+                (error.response && error.response.data && error.response.data.message) ||
+                error.message ||
+                error.toString();
+          }
+      );
+    },
+    del(project){
+      let i = this.projects.findIndex(item => item.id == project.id);
+      if (i < 0) {
+        i = this.user_projects.findIndex(item => item.id == project.id);
+        this.projects.splice(i,1);
+      } else{
+        this.projects.splice(i,1);
+      }
+
     }
   }
 };

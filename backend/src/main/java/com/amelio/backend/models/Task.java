@@ -1,18 +1,17 @@
 package com.amelio.backend.models;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.util.Date;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(	name = "user_tasks")
-@NamedQuery(name = "Task.findAllUndoneChildren",
-		query = "select t1 from Task t1 where not exists (select t2 from Task t2 where t2.parent = t1.id) and t1.username = ?1 and t1.taskComplete = false")
-
 
 public class Task {
 	@Id
@@ -26,31 +25,72 @@ public class Task {
 	@Size(max = 700)
 	private String task_description;
 
-	private String username;
-
-	private Long parent;
-
 	private Date task_start;
 
 	private Date task_end;
 
-	private Date work_start;
-
-	private int task_work;
-
 	private boolean taskComplete;
+
+	private boolean taskDelete;
+
+	private boolean current;
+
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(
+			name = "u_tasks",
+			joinColumns = { @JoinColumn(name = "task_id") },
+			inverseJoinColumns = { @JoinColumn(name = "user_id") }
+	)
+	private Set<User> workers = new HashSet<>();
+
+	@ManyToOne
+	private Task parent;
+
+	@JsonIgnore
+	@OneToMany(mappedBy="parent", cascade=CascadeType.ALL)
+	private Set<Task> children = new HashSet<>();
+
+	@JsonIgnore
+	@ManyToOne()
+	@JoinTable(
+			name = "task_project",
+			joinColumns = { @JoinColumn(name = "task_id") },
+			inverseJoinColumns = { @JoinColumn(name = "project_id") }
+	)
+	private Project project;
+
+	@OneToMany(cascade=CascadeType.ALL)
+	@JoinTable(
+			name = "task_plan",
+			joinColumns = { @JoinColumn(name = "task_id") },
+			inverseJoinColumns = { @JoinColumn(name = "plan_id") }
+	)
+	private Set<Plan> plans = new HashSet<>();
 
 	public Task() {
 	}
 
-	public Task(@NotBlank @Size(max = 100) String task_name, @Size(max = 700) String task_description, String username, Long parent, Date task_start, Date task_end, int task_work) {
+	public Task(@NotBlank @Size(max = 100) String task_name, @Size(max = 700) String task_description, Task parent, Set<Task> children, Date task_start, Date task_end, boolean taskComplete, boolean taskDelete, boolean current, Set<User> workers, Project project, Set<Plan> plans) {
 		this.task_name = task_name;
 		this.task_description = task_description;
-		this.username = username;
 		this.parent = parent;
+		this.children = children;
 		this.task_start = task_start;
 		this.task_end = task_end;
-		this.task_work = task_work;
+		this.taskComplete = taskComplete;
+		this.taskDelete = taskDelete;
+		this.current = current;
+		this.workers = workers;
+		this.project = project;
+		this.plans = plans;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Task task = (Task) o;
+		return Objects.equals(id, task.id);
 	}
 
 	public Long getId() {
@@ -77,14 +117,6 @@ public class Task {
 		this.task_description = task_description;
 	}
 
-	public String getUsername() {
-		return username;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
 	public Date getTask_start() {
 		return task_start;
 	}
@@ -101,35 +133,88 @@ public class Task {
 		this.task_end = task_end;
 	}
 
-	public int getTask_work() {
-		return task_work;
-	}
-
-	public void setTask_work(int task_work) {
-		this.task_work = task_work;
-	}
-
-	public Long getParent() {
-		return parent;
-	}
-
-	public void setParent(Long parent) {
-		this.parent = parent;
-	}
-
-	public Date getWork_start() {
-		return work_start;
-	}
-
-	public void setWork_start(Date work_start) {
-		this.work_start = work_start;
-	}
-
 	public boolean getTaskComplete() {
+		return taskComplete;
+	}
+
+	public boolean isTaskComplete() {
 		return taskComplete;
 	}
 
 	public void setTaskComplete(boolean taskComplete) {
 		this.taskComplete = taskComplete;
 	}
+
+	public boolean getTaskDelete() {
+		return taskDelete;
+	}
+
+	public boolean isTaskDelete() {
+		return taskDelete;
+	}
+
+	public void setTaskDelete(boolean taskDelete) {
+		this.taskDelete = taskDelete;
+	}
+
+	public void setCurrent(boolean current) {
+		this.current = current;
+	}
+
+	public boolean getCurrent() {
+		return current;
+	}
+
+	public boolean isCurrent() {
+		return current;
+	}
+
+	public Set<User> getWorkers() {
+		return workers;
+	}
+
+	public void setWorkers(Set<User> workers) {
+		this.workers = workers;
+	}
+
+	public Task getParent() {
+		return parent;
+	}
+
+	public void setParent(Task parent) {
+		this.parent = parent;
+	}
+
+	public Set<Task> getChildren() {
+		return children;
+	}
+
+	public void setChildren(Set<Task> children) {
+		this.children = children;
+	}
+
+	public Project getProject() {
+		return project;
+	}
+
+	public void setProject(Project project) {
+		this.project = project;
+	}
+
+	public Set<Plan> getPlans() {
+		return plans;
+	}
+
+	public void setPlans(Set<Plan> plans) { this.plans = plans;}
+
+	public void addPlan(Plan plan){	this.plans.add(plan);}
+
+	public void removePlan(Plan plan){this.plans.remove(plan);}
+
+	public void addWorker(User user){
+		workers.add(user);
+	}
+
+	public void delChild(Task task) {this.children.remove(task);}
+	public void delChild(Set<Task> task) {this.children.removeAll(task);}
 }

@@ -1,5 +1,6 @@
 package com.amelio.backend.repository;
 
+import com.amelio.backend.models.Project;
 import com.amelio.backend.models.Task;
 import com.amelio.backend.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,10 +11,9 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface TaskRepository extends JpaRepository<Task, Long> {
-  //Optional<Task> findById(Long id);
-  List<Task> findAllByParent(Task parent);
-  List<Task> findAllByWorkers(User user);
-  List<Task> findAllByWorkersAndTaskCompleteIsFalse(User user);
-  List<Task> findAllByParentAndTaskCompleteFalse(Long parent);
+public interface ProjectRepository extends JpaRepository<Project, Long> {
+    List<Project> findAllByOwner(User user);
+    List<Project> findAllByManagersOrWorkers(User user, User user2);
+
+    Optional<Project> findByTasks(Task task);
 }

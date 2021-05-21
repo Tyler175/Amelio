@@ -1,9 +1,5 @@
 <template>
-  <div class="row">
-    <div class="task" @click="edit">{{task.task_name}}</div>
-    <button class="button-g" @click="select">Начать</button>
-    <button class="button-b" @click="finish">Готово</button>
-  </div>
+
 </template>
 
 <script>

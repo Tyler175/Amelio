@@ -11,7 +11,7 @@
         <router-link to="/tasks">Задачи</router-link>
       </li>
       <li>
-        <router-link to="/user">Статистика</router-link>
+        <router-link to="/statistics">Статистика</router-link>
       </li>
       <li>
         <router-link to="/projects">Проекты</router-link>
@@ -30,20 +30,21 @@
       <div>
         <h1>Текущая задача</h1>
         <div class="row">
-          <div class="task">Выбранная задача</div>
-          <div v-if="!current" class="task"> Выбранная задача </div>
-          <div v-else> {{ current.task_name }} </div>
-          <div class="timer"> 05:15 &nbsp;</div>
+          <div v-if="!current" class="task" style="cursor: auto"> Задача не выбрана </div>
+          <div v-else class="task" style="cursor: auto"> {{ current.task_name }} </div>
+          <div class="timer"> {{ currentTime }} &nbsp;</div>
         </div>
-        <button class="button-g">Перерыв</button>
-        <button class="button-b" @click="complete">Готово</button>
+        <button class="button-b" v-if="current && timerStop" @click="toStop">Перерыв</button>
+        <button style="width: auto" class="button-g" v-if="current && !timerStop" @click="toStart">Продолжить</button>
         <div class="row">
           <h1>Задачи на сегодня</h1>
-          <button class="button-p">Добавить задачу</button>
+          <button class="button-p" @click="openEdit(0)">Добавить задачу</button>
         </div>
-        <v-todayRow v-for="task in tasks" :key="task.id" :task="task" :editMethod="openEdit"
-                    :toStart="toStart" :complete="complete"></v-todayRow>
-        <!-- END -->
+        <div class="row" v-for="task in filterTasks" :key="task.id">
+          <div class="task"  @click="openEdit(task)">{{task.task_name}}</div>
+          <button class="button-g" @click="toStart(task)">Начать</button>
+          <button class="button-b" v-if="task.workers.includes(currentUser)" @click="complete(task)">Готово</button>
+        </div>
 
       </div>
     </div>
@@ -55,7 +56,6 @@
 <script>
 import UserService from '../services/user.service';
 import TaskEdit from "@/views/components/TaskEdit.vue";
-import TodayRow from "@/views/components/TodayRow";
 
 export default {
   name: 'Today',
@@ -65,14 +65,26 @@ export default {
       tasks: [],
       content: '',
       task: {},
-      current: {}
+      current: {},
+
+      work: {},
+
+      timerStop: false,
+      startDate: new Date(),
+      timer: 0,
+      currentTime: '00:00:00'
     };
   },
   components:{
-    'v-taskEdit' : TaskEdit,
-    'v-todayRow' : TodayRow
+    'v-taskEdit' : TaskEdit
   },
   computed: {
+    filterTasks(){
+    return this.tasks.filter(item =>
+          (new Date(item.task_start).getTime() <= new Date().getTime()) &&
+          (new Date(item.task_end).getTime() >= new Date().getTime()) && !item.current
+      );
+    },
     currentUser() {
       return this.$store.state.auth.user;
     },
@@ -103,22 +115,47 @@ export default {
           error.toString();
       }
     );
+    this.current = this.tasks.find(item => item.current);
+    this.current = this.current ? this.current : {};
     if (!this.currentUser) {
       this.$router.push('/login');
     }
+
   },
 
 
   methods: {
     openEdit(task){
-      this.task = task;
+      if (task === 0) {this.task = {}}
+      else {
+        this.task = {}
+        Object.assign(this.task, task);
+      }
       this.isHidden = false;
     },
-    toStart(){
+    toStart(task){
+      if (task){
+        // eslint-disable-next-line no-console
+        console.log(!this.current);
+        if (this.current) {this.toStop(); this.current.current = false;}
+        this.currentTime = '00:00:00';
+        this.current = task;
+        task.current = true;
+        this.timer = 0;
+      }
+      this.work.start = new Date();
+      this.work.end = null;
 
+      this.timerStop = true;
+      setTimeout(this.countdown, 1);
     },
     toStop(){
 
+      this.work.end=new Date();
+      this.work.user = this.currentUser;
+      this.work.task = this.current;
+      UserService.saveWork(this.work);
+      this.timerStop = false;
     },
     complete(task){
       if (task){
@@ -153,30 +190,33 @@ export default {
       }
 
     },
-    post(task){
-      if(task.parent){
-        let i = this.tasks.findIndex(item => item.parent.id == task.parent);
-        this.tasks[i].children.push(task);
-      }else{
-        this.tasks.push({parent: task, children: []});
+    countdown() {
+      let t = new Date().getTime() - this.work.start.getTime();
+      t+=this.timer;
+      let seconds = Math.floor((t / 1000) % 60);
+      let minutes = Math.floor((t / 1000 / 60) % 60);
+      let hours = Math.floor((t / (1000 * 60 * 60)) % 24);
+      //let days = Math.floor(t / (1000 * 60 * 60 * 24));
+      if (this.timerStop) {
+        if (seconds < 10) seconds = '0' + seconds;
+        if (minutes < 10) minutes = '0' + minutes;
+        if (hours < 10) hours = '0' + hours;
+        this.currentTime = hours+':'+minutes+':'+seconds;
+        setTimeout(this.countdown, 1000);
+      } else {
+        this.timer = t;
       }
+    },
+    post(task){
+      this.tasks.push(task);
+      Object.assign(this.task, task);
     },
     put(task){
-      if(task.parent){
-        let i = this.tasks.findIndex(item => item.parent.id == task.parent);
-        this.tasks[i].children[this.tasks[i].children.findIndex(item => item.id == task.id)] = task;
-      }else{
-        this.tasks[this.tasks.findIndex(item => item.parent.id == task.id)].parent = task;
-      }
+      this.tasks.splice(this.tasks.findIndex(item => item.id == task.id), 1, task);
+
     },
     del(task){
-      if(task.parent){
-        let i = this.tasks.findIndex(item => item.parent.id == task.parent);
-        this.tasks[i].children.splice(this.tasks[i].children.findIndex(item => item.id == task.id),1);
-      }else{
-
-        this.tasks.splice(this.tasks.findIndex(item => item.parent.id == task.id),1);
-      }
+      this.tasks.splice(this.tasks.findIndex(item => item.id === task.id),1);
     }
   }
 };

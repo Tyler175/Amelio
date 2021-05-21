@@ -33,6 +33,11 @@ import UserService from "@/services/user.service";
 export default {
   name: "TaskRow",
   props: ['task', 'editMethod', 'del'],
+  data() {
+    return {
+      message: ''
+    };
+  },
   components: {
     'v-taskSubRow' : TaskSubRow
   },

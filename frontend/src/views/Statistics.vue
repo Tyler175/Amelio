@@ -16,7 +16,7 @@
           <router-link to="/tasks">Задачи</router-link>
         </li>
         <li>
-          <router-link to="/user" class="active" @click.prevent>Статистика</router-link>
+          <router-link to="/statistics" class="active" @click.prevent>Статистика</router-link>
         </li>
         <li>
           <router-link to="/projects">Проекты</router-link>
@@ -41,10 +41,10 @@
           <div class="number">06:23</div>
         </div>
         <div class= "row">
-          <div class="tab" v-bind:class="{ active: !isActive }" v-bind:disabled="!isActive" @click="changeActive">Выполнено</div>
-          <div class="tab" v-bind:class="{ active: isActive }" v-bind:disabled="isActive" @click="changeActive" style="margin-left: -2px ">Не выполнено</div>
+          <div class="tab" v-bind:class="{ active: !isActive }" v-bind:disabled="!isActive" @click="changeActive1">Выполнено</div>
+          <div class="tab" v-bind:class="{ active: isActive }" v-bind:disabled="isActive" @click="changeActive2" style="margin-left: -2px ">Не выполнено</div>
         </div>
-        <div class="table" v-bind:class="{ hidden: isActive }">
+        <div class="tab-table" v-bind:class="{ hidden: isActive }">
           <div class="row" style="justify-content: flex-end;margin-top: 0" >
             <div class="label"> Время работы</div>
             <div class="label" style="margin-left: 25px"> Часы</div>
@@ -66,7 +66,7 @@
             <div class="label"> 00:00 </div>
           </div>
         </div>
-        <div class="table" v-bind:class="{ hidden: !isActive }">
+        <div class="tab-table" v-bind:class="{ hidden: !isActive }">
           <div class="row" style="justify-content: flex-end;margin-top: 0; margin-right: 210px" >
             <div class="label"> Дедлайн</div>
           </div>
@@ -92,6 +92,7 @@ export default {
   data() {
     return {
       content: '',
+
       isActive: true,
     };
   },
@@ -115,9 +116,11 @@ export default {
     }
   },
   mounted() {
-    UserService.getUserBoard().then(
+    UserService.getUser().then(
       response => {
-        this.content = response.data;
+        // eslint-disable-next-line no-console
+        //console.log(response.data);
+        this.content = response.data.username;
       },
       error => {
         this.content =
@@ -131,8 +134,11 @@ export default {
     }
   },
   methods: {
-    changeActive(){
-      this.isActive=!this.isActive;
+    changeActive1(){
+      this.isActive= false;
+    },
+    changeActive2(){
+      this.isActive= true;
     }
   }
 };

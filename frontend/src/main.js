@@ -22,6 +22,8 @@ import {
 
 library.add(faHome, faUser, faUserPlus, faSignInAlt, faSignOutAlt);
 */
+import VueInputAutowidth from 'vue-input-autowidth'
+Vue.use(VueInputAutowidth)
 Vue.config.productionTip = false;
 
 Vue.use(VeeValidate);

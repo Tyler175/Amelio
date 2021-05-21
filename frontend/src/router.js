@@ -31,15 +31,20 @@ export const router = new Router({
       component: () => import('./views/Tasks.vue')
     },
     {
-      path: '/user',
-      name: 'user',
+      path: '/statistics',
+      name: 'statistics',
       // lazy-loaded
-      component: () => import('./views/User.vue')
+      component: () => import('./views/Statistics.vue')
     },
     {
       path: '/projects',
       name: 'projects',
       component: () => import('./views/Projects.vue')
+    },
+    {
+      path: '/project/:id',
+      name: 'project',
+      component: () => import('./views/Project.vue')
     },
     {
       path: '/profile',
@@ -58,6 +63,14 @@ export const router = new Router({
       name: 'moderator',
       // lazy-loaded
       component: () => import('./views/BoardModerator.vue')
+    },
+
+
+
+    {
+      path: '*',
+      name: 'notfound',
+      component: () => import('./views/NotFound.vue')
     }
   ]
 });

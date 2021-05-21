@@ -1,6 +1,11 @@
 package com.amelio.backend.controllers;
 
+import com.amelio.backend.models.Plan;
+import com.amelio.backend.models.Project;
 import com.amelio.backend.models.Task;
+import com.amelio.backend.models.User;
+import com.amelio.backend.repository.PlanRepository;
+import com.amelio.backend.repository.ProjectRepository;
 import com.amelio.backend.repository.TaskRepository;
 import com.amelio.backend.repository.UserRepository;
 import org.springframework.beans.BeanUtils;
@@ -9,8 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -21,16 +25,50 @@ public class TaskController {
     UserRepository userRepo;
     @Autowired
     TaskRepository taskRepo;
+    @Autowired
+    ProjectRepository projectRepository;
+    @Autowired
+    PlanRepository planRepository;
+
+    @PostMapping("/plan")
+    public Plan createPlan(@RequestBody Plan plan) {
+        planRepository.deleteAllByTaskIsNull();
+        return planRepository.save(plan);
+    }
+
+    @PutMapping("/plan")
+    public Plan planUpdate(
+            @RequestBody Plan plan
+    ) {
+        Plan planFromDb = planRepository.findByUserAndTask(plan.getUser(),plan.getTask()).orElse(new Plan());
+        BeanUtils.copyProperties(plan, planFromDb, "id");
+        return planRepository.save(planFromDb);
+    }
+    @RequestMapping("/plan")
+    @DeleteMapping(params = "plan")
+    public void planDelete(@RequestParam("plan") Plan plan) {
+        planRepository.deleteByUserAndTask(plan.getUser(),plan.getTask());
+    }
+
+    @GetMapping("/permissions/{id}")
+    public boolean[] getPermission(Authentication authentication,
+            @PathVariable("id") Task task) {
+        boolean isOwner;
+        boolean isManager = false;
+        User user = userRepo.findByUsername(authentication.getName()).orElse(new User());
+        if (task.getProject() != null) {
+            isOwner = task.getProject().getOwner().equals(user);
+            isManager = task.getProject().getManagers().contains(user);
+        } else isOwner = task.getWorkers().contains(user);
+        return new boolean[]{isOwner,isManager};
+    }
     @GetMapping
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public List<ChildTask> allTasks(Authentication authentication) {
-        List<Task> parents = taskRepo.findAllByUsernameAndParentIsNullAndTaskCompleteFalse(authentication.getName());
-        List<ChildTask> allTask = new ArrayList<ChildTask>();
-        for (Task parent: parents) {
-            allTask.add(new ChildTask(parent,taskRepo.findAllByParentAndTaskCompleteFalse(parent.getId())));
-        }
-
-        return allTask;
+    public List<Task> getTasks(Authentication authentication) {
+        Optional<User> user = userRepo.findByUsername(authentication.getName());
+        if(user.isPresent()){
+          return taskRepo.findAllByWorkers(user.orElse(new User()));
+        } else return null;
     }
 
     @GetMapping("{id}")
@@ -40,6 +78,11 @@ public class TaskController {
 
     @PostMapping
     public Task create(@RequestBody Task task) {
+        if (task.getParent() != null && !task.getTaskComplete()){
+            Task update = taskRepo.findById(task.getParent().getId()).orElse(new Task());
+            update.setTaskComplete(false);
+            taskRepo.save(update);
+        }
         return taskRepo.save(task);
     }
 
@@ -48,13 +91,34 @@ public class TaskController {
             @PathVariable("id") Task taskFromDb,
             @RequestBody Task task
     ) {
-        BeanUtils.copyProperties(task, taskFromDb, "id");
 
-        return taskRepo.save(taskFromDb);
+        BeanUtils.copyProperties(task, taskFromDb, "id");
+        Set<Task> childrenToDel = new HashSet<>();
+        for (Task child : taskRepo.findAllByParent(taskFromDb)) {
+            if (taskFromDb.getTaskComplete()) child.setTaskComplete(true);
+            if (child.getTask_start().compareTo(taskFromDb.getTask_start()) < 0) child.setTask_start(taskFromDb.getTask_start());
+            if (child.getTask_end().compareTo(taskFromDb.getTask_end()) > 0) child.setTask_end(taskFromDb.getTask_end());
+            if (child.getTask_start().compareTo(taskFromDb.getTask_end()) > 0
+                    || child.getTask_end().compareTo(taskFromDb.getTask_start()) < 0
+                    || child.getTask_end().compareTo(child.getTask_start()) < 0){
+                childrenToDel.add(child);
+            } else taskRepo.save(child);
+        }
+        taskFromDb.delChild(childrenToDel);
+
+        Task saved = taskRepo.save(taskFromDb);
+
+        taskRepo.deleteAll(childrenToDel);
+
+        return saved;
     }
 
     @DeleteMapping("{id}")
     public void delete(@PathVariable("id") Task task) {
+        Optional<Project> project = projectRepository.findByTasks(task);
+        if(project.isPresent()){
+            project.orElse(new Project()).delTask(task);
+        }
         taskRepo.delete(task);
     }
 

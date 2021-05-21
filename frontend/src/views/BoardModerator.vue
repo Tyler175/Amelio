@@ -9,7 +9,7 @@
           <router-link to="/tasks">Задачи</router-link>
         </li>
         <li>
-          <router-link to="/user">Статистика</router-link>
+          <router-link to="/statistics">Статистика</router-link>
         </li>
         <li>
           <router-link to="/projects">Проекты</router-link>

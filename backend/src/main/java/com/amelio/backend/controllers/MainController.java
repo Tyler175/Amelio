@@ -1,21 +1,22 @@
 package com.amelio.backend.controllers;
 
+import com.amelio.backend.models.Project;
 import com.amelio.backend.models.Task;
 import com.amelio.backend.models.User;
+import com.amelio.backend.models.Work;
 import com.amelio.backend.repository.TaskRepository;
 import com.amelio.backend.repository.UserRepository;
+import com.amelio.backend.repository.WorkRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -25,6 +26,10 @@ public class MainController {
 	UserRepository userRepo;
 	@Autowired
 	TaskRepository taskRepo;
+	@Autowired
+	WorkRepository workRepo;
+
+
 	@GetMapping("/all")    //not used
 	public String allAccess() {
 		return "Общедоступная информация.";
@@ -33,21 +38,30 @@ public class MainController {
 	@GetMapping("/today")
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	public List<Task> todayTask(Authentication authentication) {
-		List<Task> tasks = taskRepo.findAllUndoneChildren(authentication.getName());
-		return tasks;
+		return taskRepo.findAllByWorkersAndTaskCompleteIsFalse(userRepo.findByUsername(authentication.getName()).orElse(new User()));
 	}
 
 	@GetMapping("/user")
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-	public String userStat(Authentication authentication) {
-		return authentication.getName();
+	public User getUser(Authentication authentication) {
+		return userRepo.findByUsername(authentication.getName()).orElse(new User());
 	}
 
-	@GetMapping("/projects")
+	@GetMapping("/statistics")
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-	public String userProject() {
-		return "Проекты.";
+	public User stat(Authentication authentication) {
+		return userRepo.findByUsername(authentication.getName()).orElse(new User());
 	}
+
+	@PutMapping("/profile/{id}")
+	public User update(
+			@PathVariable("id") User userFromDb,
+			@RequestBody User user
+	) {
+		userFromDb.setDescription(user.getDescription());
+		return userRepo.save(userFromDb);
+	}
+
 
 	@GetMapping("/mod")
 	@PreAuthorize("hasRole('MODERATOR')")
@@ -58,6 +72,11 @@ public class MainController {
 	@GetMapping("/admin")
 	@PreAuthorize("hasRole('ADMIN')")
 	public String adminAccess() {
+		Set<Work> childrenToDel = new HashSet<>();
+		System.out.println("Still Working 2");
+		workRepo.deleteAll(childrenToDel);
+		System.out.println("Still Working 2");
 		return "Панель администратора.";
 	}
+
 }

@@ -122,6 +122,7 @@ public class AuthController {
 		}
 
 		user.setRoles(roles);
+		user.setDescription("О себе");
 		userRepository.save(user);
 
 		return ResponseEntity.ok(new MessageResponse("Вы успешно зарегистрированы!"));
