@@ -10,13 +10,11 @@ public class Work {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Date date;
+    private Date work_start;
 
-    private Date start;
+    private Date work_end;
 
-    private Date end;
-
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinTable(
             name = "task_works",
             joinColumns = { @JoinColumn(name = "work_id") },
@@ -24,7 +22,7 @@ public class Work {
     )
     private Task task;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_works",
             joinColumns = { @JoinColumn(name = "work_id") },
@@ -35,10 +33,9 @@ public class Work {
     public Work(){
 
     }
-    public Work(Date date, Date start, Date end, Task task, User user) {
-        this.date = date;
-        this.start = start;
-        this.end = end;
+    public Work(Date work_start, Date work_end, Task task, User user) {
+        this.work_start = work_start;
+        this.work_end = work_end;
         this.task = task;
         this.user = user;
     }
@@ -51,28 +48,20 @@ public class Work {
         this.id = id;
     }
 
-    public Date getDate() {
-        return date;
+    public Date getWork_start() {
+        return work_start;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setWork_start(Date work_start) {
+        this.work_start = work_start;
     }
 
-    public Date getStart() {
-        return start;
+    public Date getWork_end() {
+        return work_end;
     }
 
-    public void setStart(Date start) {
-        this.start = start;
-    }
-
-    public Date getEnd() {
-        return end;
-    }
-
-    public void setEnd(Date end) {
-        this.end = end;
+    public void setWork_end(Date work_end) {
+        this.work_end = work_end;
     }
 
     public Task getTask() {

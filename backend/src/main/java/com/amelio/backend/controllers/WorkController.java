@@ -11,9 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -35,7 +33,10 @@ public class WorkController {
 	}
 
 	@PostMapping
-	public Work addWork(@RequestBody Work work) {
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+	public Work addWork(Authentication authentication, @RequestBody Work work) {
+		work.setUser(userRepo.findByUsername(authentication.getName()).orElse(new User()));
+
 		return workRepo.save(work);
 	}
 

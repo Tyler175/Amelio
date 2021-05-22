@@ -1,22 +1,17 @@
 package com.amelio.backend.controllers;
 
-import com.amelio.backend.models.Project;
 import com.amelio.backend.models.Task;
 import com.amelio.backend.models.User;
 import com.amelio.backend.models.Work;
 import com.amelio.backend.repository.TaskRepository;
 import com.amelio.backend.repository.UserRepository;
 import com.amelio.backend.repository.WorkRepository;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
