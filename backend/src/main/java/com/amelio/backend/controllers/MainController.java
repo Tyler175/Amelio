@@ -35,6 +35,20 @@ public class MainController {
 	public List<Task> todayTask(Authentication authentication) {
 		return taskRepo.findAllByWorkersAndTaskCompleteIsFalse(userRepo.findByUsername(authentication.getName()).orElse(new User()));
 	}
+	@GetMapping("/today/timer/{id}")
+	public int getTimer(
+			@PathVariable("id") User userFromDb
+	) {
+		return userFromDb.getTimer();
+	}
+	@PutMapping("/today/timer/{id}")
+	public User updateTimer(
+			@PathVariable("id") User userFromDb,
+			@RequestBody User user
+	) {
+		userFromDb.setTimer(user.getTimer());
+		return userRepo.save(userFromDb);
+	}
 
 	@GetMapping("/user")
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")

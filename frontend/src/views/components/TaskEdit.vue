@@ -33,7 +33,7 @@
               <div v-if="workers.length > 0" class="select">
                 <div v-for="user in workers" :key="user.id" class="employes" >
                   <div>{{ user.username }} - {{ user.email }}</div>
-                  <div class="cross2" @click="delWorker(user)">x</div>
+                  <div v-if="!allowToEdit" class="cross2" @click="delWorker(user)">x</div>
                 </div>
               </div>
               <input v-bind:disabled="allowToEdit" class="select" type="text" maxlength="50" v-autowidth="{maxWidth: '700px', minWidth: '505px', comfortZone: 0}"
@@ -50,7 +50,7 @@
           <div class="row">
             <div class="column">
               <div v-for="plan in plans" :key="plan.user.id" >
-                <input v-on:input="changePlan(plan)" type="number" class="select employes" v-model="plan.plan" style="border:none; width: 60%"/>
+                <input v-bind:disabled="allowToEdit" v-on:input="changePlan(plan)" type="number" class="select employes" v-model="plan.plan" style="border:none; width: 60%"/>
               </div>
             </div>
           </div>

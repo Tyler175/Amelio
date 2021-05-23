@@ -31,7 +31,7 @@ h3{
       </div>
 
     <div class="content">
-      <div class="form" style="margin-top: 50px" v-if="!isOwner && !isManager"> <!--areAllowed if workers are allowed to-->
+      <div class="form" style="margin-top: 50px" v-if="areAllowed"> <!--areAllowed if workers are allowed to-->
         <h2>Проект не найден</h2>
       </div>
       <div v-else>
@@ -83,7 +83,7 @@ h3{
                         {{ task.task_name }}
                       </div>
                     </div>
-                    <div class="plus-btn" @click="openEdit({parent: task})" data-content="Добавить подзадачу"></div>
+                    <div v-if="isOwner || isManager" class="plus-btn" @click="openEdit({parent: task})" data-content="Добавить подзадачу"></div>
 
                 </div>
                 <div class="task-in-table subtask-in-table" v-for="child_task in children_open(task) " :key="child_task.id"
@@ -92,7 +92,7 @@ h3{
                   {{child_task.task_name}}
                 </div>
               </div>
-              <div class="button-s" @click="openEdit(0)"
+              <div v-if="isManager || isOwner" class="button-s" @click="openEdit(0)"
                    style="width: auto; margin-right: 0px; margin-left: -1px; border-radius: 0 0 0 5px;">
                 Добавить задачу
               </div>

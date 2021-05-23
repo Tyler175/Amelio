@@ -1,13 +1,7 @@
 package com.amelio.backend.controllers;
 
-import com.amelio.backend.models.Plan;
-import com.amelio.backend.models.Project;
-import com.amelio.backend.models.Task;
-import com.amelio.backend.models.User;
-import com.amelio.backend.repository.PlanRepository;
-import com.amelio.backend.repository.ProjectRepository;
-import com.amelio.backend.repository.TaskRepository;
-import com.amelio.backend.repository.UserRepository;
+import com.amelio.backend.models.*;
+import com.amelio.backend.repository.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,6 +23,8 @@ public class TaskController {
     ProjectRepository projectRepository;
     @Autowired
     PlanRepository planRepository;
+    @Autowired
+    WorkRepository workRepo;
 
     @PostMapping("/plan")
     public Plan createPlan(@RequestBody Plan plan) {
@@ -88,6 +84,7 @@ public class TaskController {
 
     @PutMapping("{id}")
     public Task update(
+            Authentication authentication,
             @PathVariable("id") Task taskFromDb,
             @RequestBody Task task
     ) {
@@ -106,6 +103,11 @@ public class TaskController {
         }
         taskFromDb.delChild(childrenToDel);
 
+        Optional<Work> work = workRepo.findByUserAndTaskAndWorkEndIsNull(userRepo.findByUsername(authentication.getName()).orElse(new User()), taskFromDb);
+        if(work.isPresent()){
+            work.orElse(new Work()).setWorkEnd(new Date());
+        }
+
         Task saved = taskRepo.save(taskFromDb);
 
         taskRepo.deleteAll(childrenToDel);
@@ -119,6 +121,7 @@ public class TaskController {
         if(project.isPresent()){
             project.orElse(new Project()).delTask(task);
         }
+        //При переносе удаления в put помни про то, что у задачи может остаться незаконченный work
         taskRepo.delete(task);
     }
 

@@ -34,7 +34,7 @@
         <div class="row"><h2>Мои проекты</h2></div>
         <v-projectRow v-for="project in user_projects" :key="project.id" :project="project" :btn="'Удалить'" :action="del"></v-projectRow>
         <div class="row"><h2>Проекты</h2></div>
-        <v-projectRow v-for="project in projects" :key="project.id" :project="project" :btn="'Покинуть проект'" :action="del"></v-projectRow>
+        <v-projectRow v-for="project in otherProjects" :key="project.id" :project="project" :btn="'Покинуть проект'" :action="del"></v-projectRow>
         <!-- END -->
         <h3>{{content}}</h3>
       </div>
@@ -60,6 +60,9 @@ export default {
     'v-projectRow' : ProjectRow
   },
   computed: {
+    otherProjects(){
+      return this.projects.filter((item, index) => this.projects.indexOf(item) === index)
+    },
     currentUser() {
       return this.$store.state.auth.user;
     },

@@ -30,12 +30,12 @@
       <div>
         <h1>Текущая задача</h1>
         <div class="row">
-          <div v-if="!current" class="task" style="cursor: auto"> Задача не выбрана </div>
+          <div v-if="!current.task_name" class="task" style="cursor: auto"> Задача не выбрана </div>
           <div v-else class="task" style="cursor: auto"> {{ current.task_name }} </div>
           <div class="timer"> {{ currentTime }} &nbsp;</div>
         </div>
-        <button class="button-b" v-if="current && timerStop" @click="toStop">Перерыв</button>
-        <button style="width: auto" class="button-g" v-if="current && !timerStop" @click="toStart">Продолжить</button>
+        <button class="button-b" v-if="current.task_name && timerId != null" @click="toStop">Перерыв</button>
+        <button style="width: auto" class="button-g" v-if="current.task_name && timerId === null" @click="toStart(0)">Продолжить</button>
         <div class="row">
           <h1>Задачи на сегодня</h1>
           <button class="button-p" @click="openEdit(0)">Добавить задачу</button>
@@ -43,9 +43,7 @@
         <div class="row" v-for="task in filterTasks" :key="task.id">
           <div class="task"  @click="openEdit(task)">{{task.task_name}}</div>
           <button class="button-g" @click="toStart(task)">Начать</button>
-          <button class="button-b" v-if="task.workers.includes(currentUser)" @click="complete(task)">Готово</button>
         </div>
-
       </div>
     </div>
 
@@ -67,10 +65,12 @@ export default {
       task: {},
       current: {},
 
-      work: {},
+      work: null,
 
-      timerStop: false,
+      checkId: null,
+      timerId: null,
       startDate: new Date(),
+      currentTimer: 0,
       timer: 0,
       currentTime: '00:00:00'
     };
@@ -107,6 +107,32 @@ export default {
     UserService.getToday().then(
       response => {
         this.tasks = response.data;
+        this.current = this.tasks.find(item => item.current);
+        this.current = this.current ? this.current : {};
+        if (this.current.id) UserService.getCurrentWork(this.currentUser.id, this.current.id).then(
+            response => {
+              this.work = response.data;
+              if (!this.work) {
+                this.work = {};
+              } else{
+                this.timerId = setTimeout(this.countdown, 1);
+              }
+              if (this.work.startDate) this.timer = new Date().getTime() - this.work.startDate.getTime();
+              let seconds = Math.floor((this.timer / 1000) % 60);
+              let minutes = Math.floor((this.timer / 1000 / 60) % 60);
+              let hours = Math.floor((this.timer / (1000 * 60 * 60)) % 24);
+              //let days = Math.floor(t / (1000 * 60 * 60 * 24));
+
+              if (seconds < 10) seconds = '0' + seconds;
+              if (minutes < 10) minutes = '0' + minutes;
+              if (hours < 10) hours = '0' + hours;
+              this.currentTime = hours+':'+minutes+':'+seconds;
+            }
+        ); else {
+          UserService.saveTimer(this.currentUser.id, 0);
+        }
+
+
       },
       error => {
         this.content =
@@ -115,8 +141,17 @@ export default {
           error.toString();
       }
     );
-    this.current = this.tasks.find(item => item.current);
-    this.current = this.current ? this.current : {};
+
+
+    UserService.getTimer(this.currentUser.id).then(
+        response => {
+          this.timer = response.data;
+        }
+    );
+    //
+
+    //
+
     if (!this.currentUser) {
       this.$router.push('/login');
     }
@@ -134,78 +169,60 @@ export default {
       this.isHidden = false;
     },
     toStart(task){
-      if (task){
-        // eslint-disable-next-line no-console
-        console.log(!this.current);
-        if (this.current) {this.toStop(); this.current.current = false;}
+      if (task){ //if we choose task from list
+        if (this.current.task_name) {
+          this.toStop();
+          this.current.current = false;
+          UserService.putTask(this.current);
+        }
         this.currentTime = '00:00:00';
         this.current = task;
-        task.current = true;
+        this.current.current = true;
+        UserService.putTask(this.current);
         this.timer = 0;
-      }
-      this.work.start = new Date();
-      this.work.end = null;
+        UserService.saveTimer(this.currentUser.id, this.timer);
+      } //continue after break
 
-      this.timerStop = true;
-      setTimeout(this.countdown, 1);
+      if (this.work === '') this.work = {} //i dont know how it became a string
+      this.work.task = this.current;
+      this.work.workStart = new Date();
+      this.work.workEnd = null;
+
+      if (this.checkId != null) clearTimeout(this.checkId);
+      this.checkId = setTimeout(UserService.postWork, 1000, this.work);
+
+      this.timerId = setTimeout(this.countdown, 1);
     },
     toStop(){
+      if (this.currentTimer - this.timer > 1000)
+      {
 
-      this.work.end=new Date();
-      this.work.user = this.currentUser;
-      this.work.task = this.current;
-      UserService.saveWork(this.work);
-      this.timerStop = false;
-    },
-    complete(task){
-      if (task){
-        task.taskComplete = true;
-        UserService.putTask(task).then(
-            response => {
-              this.del(response.data);
-              this.message = ''
-            },
-            error => {
-              this.message =
-                  (error.response && error.response.data && error.response.data.message) ||
-                  error.message ||
-                  error.toString();
-            }
-        );
-      } else if(this.current) {
-        this.current.taskComplete = true;
-        UserService.putTask(this.current).then(
-            response => {
-              this.del(response.data);
-              this.current = {};
-              this.message = ''
-            },
-            error => {
-              this.message =
-                  (error.response && error.response.data && error.response.data.message) ||
-                  error.message ||
-                  error.toString();
-            }
-        );
+        this.work.workEnd = new Date();
+        this.timer = this.currentTimer;
+
+        UserService.saveTimer(this.currentUser.id, this.timer);
+        UserService.putWork(this.work);
       }
 
+      clearTimeout(this.timerId);
+      this.timerId = null;
     },
     countdown() {
-      let t = new Date().getTime() - this.work.start.getTime();
-      t+=this.timer;
-      let seconds = Math.floor((t / 1000) % 60);
-      let minutes = Math.floor((t / 1000 / 60) % 60);
-      let hours = Math.floor((t / (1000 * 60 * 60)) % 24);
+      // eslint-disable-next-line no-console
+      console.log(this.work.workStart);
+      this.currentTimer = new Date().getTime() - new Date(this.work.workStart).getTime();
+      this.currentTimer += this.timer;
+      let seconds = Math.floor((this.currentTimer / 1000) % 60);
+      let minutes = Math.floor((this.currentTimer / 1000 / 60) % 60);
+      let hours = Math.floor((this.currentTimer / (1000 * 60 * 60)) % 24);
       //let days = Math.floor(t / (1000 * 60 * 60 * 24));
-      if (this.timerStop) {
-        if (seconds < 10) seconds = '0' + seconds;
-        if (minutes < 10) minutes = '0' + minutes;
-        if (hours < 10) hours = '0' + hours;
-        this.currentTime = hours+':'+minutes+':'+seconds;
-        setTimeout(this.countdown, 1000);
-      } else {
-        this.timer = t;
-      }
+
+      if (seconds < 10) seconds = '0' + seconds;
+      if (minutes < 10) minutes = '0' + minutes;
+      if (hours < 10) hours = '0' + hours;
+      this.currentTime = hours+':'+minutes+':'+seconds;
+      this.timerId = setTimeout(this.countdown, 1000);
+
     },
     post(task){
       this.tasks.push(task);

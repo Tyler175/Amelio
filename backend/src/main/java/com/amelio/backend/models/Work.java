@@ -10,9 +10,9 @@ public class Work {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Date work_start;
+    private Date workStart;
 
-    private Date work_end;
+    private Date workEnd;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinTable(
@@ -33,9 +33,9 @@ public class Work {
     public Work(){
 
     }
-    public Work(Date work_start, Date work_end, Task task, User user) {
-        this.work_start = work_start;
-        this.work_end = work_end;
+    public Work(Date workStart, Date workEnd, Task task, User user) {
+        this.workStart = workStart;
+        this.workEnd = workEnd;
         this.task = task;
         this.user = user;
     }
@@ -48,20 +48,20 @@ public class Work {
         this.id = id;
     }
 
-    public Date getWork_start() {
-        return work_start;
+    public Date getWorkStart() {
+        return workStart;
     }
 
-    public void setWork_start(Date work_start) {
-        this.work_start = work_start;
+    public void setWorkStart(Date work_start) {
+        this.workStart = work_start;
     }
 
-    public Date getWork_end() {
-        return work_end;
+    public Date getWorkEnd() {
+        return workEnd;
     }
 
-    public void setWork_end(Date work_end) {
-        this.work_end = work_end;
+    public void setWorkEnd(Date work_end) {
+        this.workEnd = work_end;
     }
 
     public Task getTask() {

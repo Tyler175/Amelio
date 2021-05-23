@@ -12,14 +12,32 @@ class UserService {
   getToday() {
     return axios.get(API_URL + 'today', { headers: authHeader() });
   }
-  saveWork(work) {
+  getCurrentWork(user_id, task_id){
+    return axios.get(API_URL + 'works/' + user_id + '/' + task_id, { headers: authHeader() });
+  }
+  postWork(work) {
     return axios.post(API_URL + 'works', {
-      start: work.start,
-      end: work.end,
+      workStart: work.workStart,
+      workEnd: work.workEnd,
       task: work.task,
       user: work.user
     }, { headers: authHeader() })
   }
+  putWork(work) {
+    return axios.put(API_URL + 'works', {
+      workStart: work.workStart,
+      workEnd: work.workEnd,
+      task: work.task,
+      user: work.user
+    }, { headers: authHeader() })
+  }
+  getTimer(id){
+    return axios.get(API_URL + 'today/timer/' + id, { headers: authHeader() })
+  }
+  saveTimer(id, timer){
+    return axios.put(API_URL + 'today/timer/' + id, {timer: timer}, { headers: authHeader() })
+  }
+
 
   getTasks() {
     return axios.get(API_URL + 'tasks', { headers: authHeader() });
