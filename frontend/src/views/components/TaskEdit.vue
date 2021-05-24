@@ -4,7 +4,7 @@
       <input class="close" type="button" value="Х" v-on:click="$emit('hide')"/>
       <div class = "fields" style="">
         <div class="row"><h1>Название задачи</h1><input v-bind:disabled="allowToEdit" class="check-mark" type="checkbox" v-model="task.taskComplete"><h2>Готово</h2></div>
-        <input v-bind:disabled="allowToEdit" type="text" name="название" v-model="task.task_name" v-validate="'required|max:100'"/>
+        <input v-bind:disabled="allowToEdit" type="text" name="название" v-model="task.taskName" v-validate="'required|max:100'"/>
         <div
             v-if="errors.has('название')"
             class="alert-error"
@@ -227,6 +227,8 @@ export default {
     addWorker(user){
       this.$set(this.workers, this.workers.length, user);
       this.plans.push({user: user, plan: ''});
+      // eslint-disable-next-line no-console
+      console.log(this.task);
       UserService.postPlan({user: user, task: this.task, plan: ''});
     },
     deleteTask(){

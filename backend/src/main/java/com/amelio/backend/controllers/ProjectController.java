@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -25,6 +26,14 @@ public class ProjectController {
 	TaskRepository taskRepo;
 	@Autowired
 	ProjectRepository projectRepository;
+
+	@GetMapping("/invitations")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+	public Set<Project> getInvitations(Authentication authentication) {
+		Set<Project> res = userRepo.findByUsername(authentication.getName()).orElse(new User()).getInvitations();
+		if (res.size() <= 0) res = null;
+		return res;
+	}
 
 	@GetMapping("/userProjects")
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
@@ -108,6 +117,8 @@ public class ProjectController {
 
 	@DeleteMapping("{id}")
 	public void delete(@PathVariable("id") Project project) {
+
+		taskRepo.deleteAll(project.getTasks());
 		projectRepository.delete(project);
 	}
 }

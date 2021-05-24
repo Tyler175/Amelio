@@ -4,39 +4,13 @@ h3{
 }
 </style>
 <template>
-  <div class="container">
+  <div>
     <v-taskEdit v-if='!isHidden' v-on:hide="isHidden = true"
                 :task="task" :post="post" :put="put" :del="del" :option="'view'"></v-taskEdit>
     <v-workEdit v-if='!isWorkHidden' v-on:whide="isWorkHidden = true"
-                :work="work" :post="workPost" :put="workPut" :del="workDel"></v-workEdit>
-    <div v-if="currentUser" class="user-menu">
-        <li>
-          <router-link to="/today">To Do</router-link>
-        </li>
-        <li>
-          <router-link to="/tasks">Задачи</router-link>
-        </li>
-        <li>
-          <router-link to="/statistics" class="active" @click.prevent>Статистика</router-link>
-        </li>
-        <li>
-          <router-link to="/projects">Проекты</router-link>
-        </li>
-        <li>
-          <router-link to="/profile">Мой профиль</router-link>
-        </li>
-        <li v-if="showModeratorBoard">
-          <router-link to="/mod">Панель модератора</router-link>
-        </li>
-        <li v-if="showAdminBoard">
-          <router-link to="/admin">Панель администратора</router-link>
-        </li>
-      </div>
-    <div class="content">
-      <h1>Статистика</h1>
-      <div v-if="content" class="row">
-        Упс, {{content}}
-      </div>
+                :work="work" :post="workPost" :put="workPut" :del="workDel" :option="'project'"></v-workEdit>
+
+    <div>
       <div class="column">
         <div class="row" style="margin-bottom: 0" v-if="false"> <!--not needed yet-->
           <input type="checkbox" checked v-model="completed"><h3>Выполненные</h3>
@@ -73,7 +47,7 @@ h3{
                   {{ task.taskName }} - {{formateQuantity(quantity(task))}}
                 </div>
               </div>
-              <div class="plus-btn" @click="openWorkEdit({task: task})" data-content="Добавить время работы"></div>
+
 
             </div>
             <div v-for="child_task in children_open(task) " :key="child_task.id" style="display: flex; align-items: center"
@@ -82,14 +56,11 @@ h3{
                    @click="openEdit(child_task)">
                 {{child_task.taskName}} - {{formateQuantity(quantity(child_task))}}
               </div>
-              <div class="plus-btn" @click="openWorkEdit({task: child_task})" data-content="Добавить время работы"></div>
+
             </div>
 
           </div>
-          <div class="button-s" @click="openWorkEdit(0)"
-               style="width: auto; margin-right: 0px; margin-left: -1px; border-radius: 0 0 0 5px;">
-            Добавить время работы
-          </div>
+
         </div>
         <horizontal-scroll class="horizontal-scroll" ref="table" v-bind:style="{height: tableHeight + 'px'}">
           <div class="table" v-bind:style="{width: 100*24 + 'px'}">
@@ -123,14 +94,15 @@ h3{
 </template>
 
 <script>
-import UserService from '../services/user.service';
-import TaskEdit from "@/views/components/TaskEdit.vue";
+import UserService from '../../services/user.service';
+import TaskEdit from "@/views/components/TaskEdit";
 import WorkEdit from "@/views/components/WorkEdit";
 import HorizontalScroll from 'vue-horizontal-scroll'
 import 'vue-horizontal-scroll/dist/vue-horizontal-scroll.css'
 
 export default {
-  name: 'Statistics',
+  name: 'Stat',
+  props: ['project'],
   data() {
     return {
       isHidden: true,
@@ -240,19 +212,11 @@ export default {
     }
   },
   mounted() {
-    UserService.getTasks().then(
+    this.tasks = this.project.tasks;
+    UserService.getWorksByProject(this.project.id).then(
         response => {
-          this.tasks = response.data;
-        },
-        error => {
-          this.content =
-              (error.response && error.response.data && error.response.data.message) ||
-              error.message ||
-              error.toString();
-        }
-    );
-    UserService.getWorksByUser(this.currentUser.id).then(
-        response => {
+          // eslint-disable-next-line no-console
+          console.log(response.data)
           this.works = response.data;
         },
         error => {

@@ -30,18 +30,18 @@
       <div>
         <h1>Текущая задача</h1>
         <div class="row">
-          <div v-if="!current.task_name" class="task" style="cursor: auto"> Задача не выбрана </div>
-          <div v-else class="task" style="cursor: auto"> {{ current.task_name }} </div>
+          <div v-if="!current.taskName" class="task" style="cursor: auto"> Задача не выбрана </div>
+          <div v-else class="task" style="cursor: auto"> {{ current.taskName }} </div>
           <div class="timer"> {{ currentTime }} &nbsp;</div>
         </div>
-        <button class="button-b" v-if="current.task_name && timerId != null" @click="toStop">Перерыв</button>
-        <button style="width: auto" class="button-g" v-if="current.task_name && timerId === null" @click="toStart(0)">Продолжить</button>
+        <button class="button-b" v-if="current.taskName && timerId != null" @click="toStop">Перерыв</button>
+        <button style="width: auto" class="button-g" v-if="current.taskName && timerId === null" @click="toStart(0)">Продолжить</button>
         <div class="row">
           <h1>Задачи на сегодня</h1>
           <button class="button-p" @click="openEdit(0)">Добавить задачу</button>
         </div>
         <div class="row" v-for="task in filterTasks" :key="task.id">
-          <div class="task"  @click="openEdit(task)">{{task.task_name}}</div>
+          <div class="task"  @click="openEdit(task)">{{task.taskName}}</div>
           <button class="button-g" @click="toStart(task)">Начать</button>
         </div>
       </div>
@@ -104,6 +104,9 @@ export default {
     }
   },
   mounted() {
+    if (!this.currentUser) {
+      this.$router.push('/login');
+    }
     UserService.getToday().then(
       response => {
         this.tasks = response.data;
@@ -152,10 +155,6 @@ export default {
 
     //
 
-    if (!this.currentUser) {
-      this.$router.push('/login');
-    }
-
   },
 
 
@@ -170,7 +169,7 @@ export default {
     },
     toStart(task){
       if (task){ //if we choose task from list
-        if (this.current.task_name) {
+        if (this.current.taskName) {
           this.toStop();
           this.current.current = false;
           UserService.putTask(this.current);
@@ -201,15 +200,14 @@ export default {
         this.timer = this.currentTimer;
 
         UserService.saveTimer(this.currentUser.id, this.timer);
-        UserService.putWork(this.work);
+        UserService.setWorkEnd(this.work);
+
       }
 
       clearTimeout(this.timerId);
       this.timerId = null;
     },
     countdown() {
-      // eslint-disable-next-line no-console
-      console.log(this.work.workStart);
       this.currentTimer = new Date().getTime() - new Date(this.work.workStart).getTime();
       this.currentTimer += this.timer;
       let seconds = Math.floor((this.currentTimer / 1000) % 60);

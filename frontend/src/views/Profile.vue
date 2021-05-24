@@ -34,33 +34,28 @@
     <div class="content">
       <div>
 
-          <div class="row inf"> Имя: {{currentUser.username}}</div>
-        <div class="row" style="margin-bottom: 20px ">
-          <div class="photo" >Фото</div>
-          <div class="ras">
-            <div class="row" style="margin: 0"><div style="margin: 0 30px 0 0" class="inf">Роли: </div><div class="inf" style="margin: 0 30px 0 0" v-for="(role,index) in currentUser.roles" :key="index">{{ roles(role)}}</div></div>
-            <div class="inf"> Контактные данные: {{currentUser.email}}</div>
+          <div class="row inf" style="margin-bottom: 0"> Имя: {{currentUser.username}}</div>
+        <div class="column" style="margin-bottom: 20px ">
+                      <!--div class="row" style="margin: 0"><div style="margin: 0 30px 0 0" class="inf">Роли: </div><div class="inf" style="margin: 0 30px 0 0" v-for="(role,index) in currentUser.roles" :key="index">{{ roles(role)}}</div></div-->
+            <div class=" row inf"> Контактные данные: {{currentUser.email}}</div>
             <textarea class="inform" v-model="about" v-on:input="changeAbout"></textarea>
-          </div>
         </div>
-        <div class="row" style="align-items: flex-start">
+        <div class="row">
         <div class="column" style="margin-right: 50px">
-          <div class="fields">
+          <div class="fields" v-if="false">
+            <div v-if="response" class="alert-error">{{response}}</div>
             <div class="row" style="margin: 5px 0">
-              <div class="pas">Старый пароль: </div> <input type="text" v-model="oldPassword"/>
-            </div>
-            <div class="row" style="margin: 5px 0">
-              <div class="pas">Новый пароль: </div> <input type="text" v-model="newPassword" />
+              <div class="pas">Старый пароль: </div> <input type="password" v-model="oldPassword" style="height: 20px"/>
             </div>
             <div class="row" style="margin: 5px 0">
-              <div class="pas">Повторите новый пароль: </div> <input type="text" v-model="chekedPassword" />
+              <div class="pas">Новый пароль: </div> <input type="password" v-model="newPassword" style="height: 20px"/>
             </div>
-              <div class="button-g">Сменить пароль</div>
+            <div class="row" style="margin: 5px 0">
+              <div class="pas">Повторите новый пароль: </div> <input type="password" v-model="checkedPassword" style="height: 20px"/>
             </div>
-          </div>
-          <div class="column">
-            <div class="pas">Ваша почта: {{currentUser.email}}</div>
-            <div class="button-g">Сменить адрес электронной почты</div>
+            <div v-if="notSamePasswords" class="alert-error">Пароли не совпадают</div>
+              <div class="button-g" @click="changePassword">Сменить пароль</div>
+            </div>
           </div>
         </div>
       </div>
@@ -70,8 +65,6 @@
         <!-- END -->
 
       </div>
-    </div>
-
   </div>
 </template>
 
@@ -83,7 +76,12 @@ export default {
   data(){
     return{
       message: '',
-      about: ''
+      about: '',
+
+      oldPassword: '',
+      newPassword: '',
+      checkedPassword: '',
+      response: ''
     };
   },
   computed: {
@@ -103,13 +101,32 @@ export default {
       }
 
       return false;
-    }
+    },
+    notSamePasswords () {
+      if (this.newPassword !== '' && this.checkedPassword !== '') {
+        return (this.newPassword !== this.checkedPassword)
+      } else {
+        return false
+      }
+    },
   },
 
   methods: {
     roles(role){
       if (role == 'ROLE_USER') return 'Пользователь'
       else return 'Администратор'
+    },
+    changePassword(){
+      if (!this.notSamePasswords && this.newPassword !== '' && this.checkedPassword !== ''){
+        UserService.isPasswordCorrect(this.oldPassword).then(
+            response => {
+              if (response.data) {
+                UserService.changePassword(this.currentUser.id,this.newPassword);
+              } else this.response = 'Неверный старый пароль'
+
+            }
+        )
+      } else this.response = 'Заполните все поля'
     },
     changeAbout(){
       UserService.changeAbout(this.currentUser.id, this.about).then(

@@ -31,10 +31,18 @@
           <h1>Проекты</h1>
           <button class="button-p" @click="createProject">Новый проект</button>
         </div>
+        <div v-if="invitations.length > 0" class="row"><h2>Приглашения</h2></div>
+        <div v-for="invitation in invitations" :key="invitation.id" class="row">
+          <div class="task" style="cursor: auto">{{invitation.name}}</div>
+          <button class="button-g" @click="acceptInv(invitation)">Принять</button>
+          <button class="button-b" @click="declineInv(invitation)">Отказать</button>
+        </div>
         <div class="row"><h2>Мои проекты</h2></div>
-        <v-projectRow v-for="project in user_projects" :key="project.id" :project="project" :btn="'Удалить'" :action="del"></v-projectRow>
+        <div v-if="user_projects.length <= 0" class="task" style="cursor: auto">У вас пока нет проектов</div>
+        <v-projectRow v-for="project in user_projects" :key="project.id" :project="project" :btn="'Удалить'" :action="del" ></v-projectRow>
         <div class="row"><h2>Проекты</h2></div>
-        <v-projectRow v-for="project in otherProjects" :key="project.id" :project="project" :btn="'Покинуть проект'" :action="del"></v-projectRow>
+        <div v-if="otherProjects.length <= 0" class="task" style="cursor: auto">Пока вы не участвуете в проектах</div>
+        <v-projectRow v-for="project in otherProjects" :key="project.id" :project="project" :btn="'Покинуть проект'" :action="leave"></v-projectRow>
         <!-- END -->
         <h3>{{content}}</h3>
       </div>
@@ -52,6 +60,7 @@ export default {
   data() {
     return {
       content: '',
+      invitations: [],
       user_projects: [],
       projects: []
     };
@@ -82,9 +91,21 @@ export default {
     }
   },
   mounted() {
+    UserService.getInvitations().then(
+        response => {
+          this.invitations = response.data;
+        },
+        error => {
+          this.content =
+              (error.response && error.response.data && error.response.data.message) ||
+              error.message ||
+              error.toString();
+        }
+    );
     UserService.getProjects().then(
       response => {
         this.projects = response.data;
+
       },
       error => {
         this.content =
@@ -96,6 +117,8 @@ export default {
     UserService.getUserProjects().then(
         response => {
           this.user_projects = response.data;
+          // eslint-disable-next-line no-console
+          console.log(this.user_projects);
         },
         error => {
           this.content =
@@ -122,16 +145,34 @@ export default {
           }
       );
     },
-    del(project){
-      let i = this.projects.findIndex(item => item.id == project.id);
-      if (i < 0) {
-        i = this.user_projects.findIndex(item => item.id == project.id);
-        this.projects.splice(i,1);
-      } else{
-        this.projects.splice(i,1);
-      }
+    acceptInv(inv){
+      let project = this.invitations.splice(this.invitations.findIndex(item => item.id === inv.id), 1)[0];
+      // eslint-disable-next-line no-console
+      console.log(this.invitations, project);
+      project.invitations.splice(project.invitations.findIndex(item => item.id === this.currentUser.id), 1);
+      UserService.changeInvitation(project);
+      UserService.getUser().then(
+          response => {
+            project.workers.push(response.data);
+            UserService.changeUsers(project);
+          }
+      )
+    },
+    declineInv(inv){
+      let project = this.invitations.splice(this.invitations.findIndex(item => item.id === inv.id), 1)[0];
+      project.invitations.splice(project.invitations.findIndex(item => item.id === this.currentUser.id), 1);
+      UserService.changeInvitation(project);
+    },
+    del(id){
+      this.user_projects.splice(this.user_projects.findIndex(item => item.id == id),1);
+
+    },
+    leave(id){
+      this.projects.splice(this.projects.findIndex(item => item.id == id),1);
 
     }
+
   }
+
 };
 </script>

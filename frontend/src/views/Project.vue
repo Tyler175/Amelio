@@ -80,7 +80,7 @@ h3{
                        @click="open(task)"></div>
                     <div class="task-in-table" @click="openEdit(task)">
                       <div>
-                        {{ task.task_name }}
+                        {{ task.taskName }}
                       </div>
                     </div>
                     <div v-if="isOwner || isManager" class="plus-btn" @click="openEdit({parent: task})" data-content="Добавить подзадачу"></div>
@@ -89,7 +89,7 @@ h3{
                 <div class="task-in-table subtask-in-table" v-for="child_task in children_open(task) " :key="child_task.id"
                      v-bind:class="[hover === child_task.id ? 'hover' : '']" @mouseover='hover = child_task.id' @mouseout="hover = 0"
                      @click="openEdit(child_task)">
-                  {{child_task.task_name}}
+                  {{child_task.taskName}}
                 </div>
               </div>
               <div v-if="isManager || isOwner" class="button-s" @click="openEdit(0)"
@@ -110,11 +110,11 @@ h3{
                 </div></div>
                 <div class="main-table-row" v-for="task in parents" :key="task.id">
                   <div class="table-row" v-bind:class="[hover === task.id ? 'hover' : '']" @mouseover='hover = task.id' @mouseout="hover = 0">
-                    <div class="table-task" v-bind:style="taskProps(task)" @click="openEdit(task)">{{ task.task_name }}</div>
+                    <div class="table-task" v-bind:style="taskProps(task)" @click="openEdit(task)">{{ task.taskName }}</div>
                   </div>
                   <div class="table-row table-subrow" v-for="child_task in children_open(task) " :key="child_task.id"
                        v-bind:class="[hover === child_task.id ? 'hover' : '']" @mouseover='hover = child_task.id' @mouseout="hover = 0">
-                    <div class="table-task" v-bind:style="taskProps(child_task)" @click="openEdit(child_task)">{{ child_task.task_name }}</div>
+                    <div class="table-task" v-bind:style="taskProps(child_task)" @click="openEdit(child_task)">{{ child_task.taskName }}</div>
                   </div>
                 </div>
               </div>
@@ -123,7 +123,7 @@ h3{
         </div>
         <!--Статистика-->
         <div v-else-if="active === 1">
-          Stats
+          <v-stat :project="project"></v-stat>
         </div>
         <!--Команда-->
         <div v-else>
@@ -177,6 +177,7 @@ h3{
 import UserService from '../services/user.service';
 import InvRow from "@/views/components/InvRow";
 import TaskEdit from "@/views/components/TaskEdit";
+import Stat from "@/views/components/Stat";
 import HorizontalScroll from 'vue-horizontal-scroll'
 import 'vue-horizontal-scroll/dist/vue-horizontal-scroll.css'
 
@@ -220,7 +221,8 @@ export default {
   components:{
     'v-invRow' : InvRow,
     'horizontal-scroll' : HorizontalScroll,
-    'v-taskEdit' : TaskEdit
+    'v-taskEdit' : TaskEdit,
+    'v-stat' : Stat
   },
   computed: {
     parents(){
@@ -230,7 +232,7 @@ export default {
               (!this.interval_end || new Date(item.task_end).getTime() <= new Date(this.interval_end).getTime())
           )
           .sort(function(f, s) {return f.task_start > s.task_start ? 1 : -1})
-          .filter(item=>item.task_name.toLowerCase().includes(this.findTask.toLowerCase()))
+          .filter(item=>item.taskName.toLowerCase().includes(this.findTask.toLowerCase()))
           .filter(item => ((this.completed || !item.taskComplete) && (this.overdue || item.taskComplete || new Date(item.task_end).getTime() > new Date().getTime()) && (this.inWork || item.taskComplete || new Date(item.task_end).getTime() < new Date().getTime())));
     },
     children_task(){
@@ -270,6 +272,7 @@ export default {
         buf -= (res.getTime() - this.minDate.getTime())/86400000;
         if (buf>0) res.setTime(res.getTime()+buf*86400000);
       }
+
       return res;
     },
     tableHeight(){
@@ -413,6 +416,8 @@ export default {
       }
     },
     children(parent){
+      // eslint-disable-next-line no-console
+      console.log(this.maxDate);
       return this.children_task.filter(item => (item.parent.id === parent.id))
     },
     children_open(parent){

@@ -22,6 +22,9 @@ import {
 
 library.add(faHome, faUser, faUserPlus, faSignInAlt, faSignOutAlt);
 */
+import VueMask from 'v-mask'
+Vue.use(VueMask)
+
 import VueInputAutowidth from 'vue-input-autowidth'
 Vue.use(VueInputAutowidth)
 Vue.config.productionTip = false;

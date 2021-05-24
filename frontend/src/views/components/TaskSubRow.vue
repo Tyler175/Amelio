@@ -11,7 +11,7 @@ i{
 <template>
   <div class="row">
     <div class="task" @click="edit">
-      {{ child.task_name }} <i>{{formatDate(child.task_start)}} - {{formatDate(child.task_end)}}</i>
+      {{ child.taskName }} <i>{{formatDate(child.task_start)}} - {{formatDate(child.task_end)}}</i>
     </div>
     <span>
       <input type="button" value="X" @click="deleteTask"/>

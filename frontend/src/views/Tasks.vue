@@ -1,7 +1,7 @@
 <style scoped>
-  h3{
-    margin: 0 20px 0 0;
-  }
+h3{
+  margin: 0 20px 0 0;
+}
 </style>
 <template>
   <div class="container">
@@ -65,16 +65,16 @@
                    @click="open(task)"></div>
               <div class="task-in-table" @click="openEdit(task)">
                 <div>
-                  {{ task.task_name }}
+                  {{ task.taskName }}
                 </div>
               </div>
-              <div class="plus-btn" @click="openEdit({parent: task})" data-content="Добавить подзадачу"></div>
+              <div v-if="editPerms.includes(task.id)" class="plus-btn" @click="openEdit({parent: task})" data-content="Добавить подзадачу"></div>
 
             </div>
             <div class="task-in-table subtask-in-table" v-for="child_task in children_open(task) " :key="child_task.id"
                  v-bind:class="[hover === child_task.id ? 'hover' : '']" @mouseover='hover = child_task.id' @mouseout="hover = 0"
                  @click="openEdit(child_task)">
-              {{child_task.task_name}}
+              {{child_task.taskName}}
             </div>
           </div>
           <div class="button-s" @click="openEdit(0)"
@@ -95,11 +95,11 @@
             </div></div>
             <div class="main-table-row" v-for="task in parents" :key="task.id">
               <div class="table-row" v-bind:class="[hover === task.id ? 'hover' : '']" @mouseover='hover = task.id' @mouseout="hover = 0">
-                <div class="table-task" v-bind:style="taskProps(task)" @click="openEdit(task)">{{ task.task_name }}</div>
+                <div class="table-task" v-bind:style="taskProps(task)" @click="openEdit(task)">{{ task.taskName }}</div>
               </div>
               <div class="table-row table-subrow" v-for="child_task in children_open(task) " :key="child_task.id"
                    v-bind:class="[hover === child_task.id ? 'hover' : '']" @mouseover='hover = child_task.id' @mouseout="hover = 0">
-                <div class="table-task" v-bind:style="taskProps(child_task)" @click="openEdit(child_task)">{{ child_task.task_name }}</div>
+                <div class="table-task" v-bind:style="taskProps(child_task)" @click="openEdit(child_task)">{{ child_task.taskName }}</div>
               </div>
             </div>
           </div>
@@ -130,6 +130,8 @@ export default {
       interval_start: '',
       interval_end: '',
 
+      editPerms:[],
+
       openParents: [],
       tasks: [],
       task: {}
@@ -147,7 +149,7 @@ export default {
               (!this.interval_end || new Date(item.task_end).getTime() <= new Date(this.interval_end).getTime())
           )
           .sort(function(f, s) {return f.task_start > s.task_start ? 1 : -1})
-          .filter(item=>item.task_name.toLowerCase().includes(this.findTask.toLowerCase()))
+          .filter(item=>item.taskName.toLowerCase().includes(this.findTask.toLowerCase()))
           .filter(item => ((this.completed || !item.taskComplete) && (this.overdue || item.taskComplete || new Date(item.task_end).getTime() > new Date().getTime()) && (this.inWork || item.taskComplete || new Date(item.task_end).getTime() < new Date().getTime())));
       //can combine filters
     },
@@ -234,6 +236,13 @@ export default {
     UserService.getTasks().then(
       response => {
         this.tasks = response.data;
+        this.tasks.forEach(task =>
+            UserService.getEditPermissions(task.id).then(
+                response => {
+                  if (response.data[0] || response.data[1]) this.editPerms.push(task.id);
+                }
+            )
+        )
       },
       error => {
         this.content =
@@ -247,6 +256,10 @@ export default {
     }
   },
   methods: {
+    test(){
+      // eslint-disable-next-line no-console
+      console.log(this.editPerms);
+    },
     open(task){
       let parent = this.openParents.find(item => item.id === task.id);
       if (parent) {
@@ -278,6 +291,7 @@ export default {
     post(task){
       this.tasks.push(task);
       Object.assign(this.task, task);
+      this.editPerms.push(task.id);
     },
     put(task){
       this.tasks.splice(this.tasks.findIndex(item => item.id == task.id), 1, task);
@@ -285,6 +299,7 @@ export default {
     },
     del(task){
       this.tasks.splice(this.tasks.findIndex(item => item.id === task.id),1);
+      this.editPerms.splice(this.editPerms.findIndex(item => item.id === task.id),1);
     }
   }
 };

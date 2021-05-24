@@ -20,7 +20,7 @@ public class Task {
 
 	@NotBlank
 	@Size(max = 100)
-	private String task_name;
+	private String taskName;
 
 	@Size(max = 700)
 	private String task_description;
@@ -35,7 +35,7 @@ public class Task {
 
 	private boolean current;
 
-	@ManyToMany(fetch = FetchType.LAZY)
+	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(
 			name = "u_tasks",
 			joinColumns = { @JoinColumn(name = "task_id") },
@@ -59,7 +59,7 @@ public class Task {
 	)
 	private Project project;
 
-	@OneToMany(cascade=CascadeType.ALL)
+	@OneToMany(fetch = FetchType.EAGER, cascade=CascadeType.ALL)
 	@JoinTable(
 			name = "task_plan",
 			joinColumns = { @JoinColumn(name = "task_id") },
@@ -70,8 +70,8 @@ public class Task {
 	public Task() {
 	}
 
-	public Task(@NotBlank @Size(max = 100) String task_name, @Size(max = 700) String task_description, Task parent, Set<Task> children, Date task_start, Date task_end, boolean taskComplete, boolean taskDelete, boolean current, Set<User> workers, Project project, Set<Plan> plans) {
-		this.task_name = task_name;
+	public Task(@NotBlank @Size(max = 100) String taskName, @Size(max = 700) String task_description, Task parent, Set<Task> children, Date task_start, Date task_end, boolean taskComplete, boolean taskDelete, boolean current, Set<User> workers, Project project, Set<Plan> plans) {
+		this.taskName = taskName;
 		this.task_description = task_description;
 		this.parent = parent;
 		this.children = children;
@@ -101,12 +101,12 @@ public class Task {
 		this.id = id;
 	}
 
-	public String getTask_name() {
-		return task_name;
+	public String getTaskName() {
+		return taskName;
 	}
 
-	public void setTask_name(String task_name) {
-		this.task_name = task_name;
+	public void setTaskName(String task_name) {
+		this.taskName = task_name;
 	}
 
 	public String getTask_description() {
