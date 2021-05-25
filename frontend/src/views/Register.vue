@@ -1,23 +1,23 @@
 <template>
-  <div class="col-md-12">
-    <div class="card card-container">
+  <div class="login-page">
+    <div class="form">
 
-      <form name="form" @submit.prevent="handleRegister">
+      <form class="registration-form" name="form" @submit.prevent="handleRegister">
         <div v-if="!successful">
+          <h1>Регистрация</h1>
           <div class="form-group">
-            <h1>Регистрация</h1>
             <input
               v-model="user.username"
               v-validate="'required|min:3|max:20'"
               type="text"
               class="form-control"
               placeholder="Имя"
-              name="username"
+              name="логин"
             />
             <div
-              v-if="submitted && errors.has('username')"
-              class="alert-danger"
-            >{{errors.first('username')}}</div>
+              v-if="submitted && errors.has('логин')"
+              class="alert-error"
+            >{{errors.first('логин')}}</div>
           </div>
           <div class="form-group">
             <input
@@ -26,12 +26,12 @@
               type="email"
               class="form-control"
               placeholder="Почта"
-              name="email"
+              name="почта"
             />
             <div
-              v-if="submitted && errors.has('email')"
-              class="alert-danger"
-            >{{errors.first('email')}}</div>
+              v-if="submitted && errors.has('почта')"
+              class="alert-error"
+            >{{errors.first('почта')}}</div>
           </div>
           <div class="form-group">
             <input
@@ -40,25 +40,58 @@
               type="password"
               class="form-control"
               placeholder="Пароль"
-              name="password"
+              name="пароль"
             />
             <div
-              v-if="submitted && errors.has('password')"
-              class="alert-danger"
-            >{{errors.first('password')}}</div>
+              v-if="submitted && errors.has('пароль')"
+              class="alert-error"
+            >{{errors.first('пароль')}}</div>
           </div>
           <div class="form-group">
-            <button class="btn btn-primary btn-block">Sign Up</button>
+            <input
+                v-model="password2"
+                v-validate="'required'"
+                type="password"
+                class="form-control"
+                placeholder="Подтвердите пароль"
+                name="подтверждения пароля"
+            />
+            <div
+                v-if="submitted && errors.has('подтверждения пароля')"
+                class="alert-error"
+            >{{errors.first('подтверждения пароля')}}</div>
+            <div
+                v-if="notSamePasswords"
+                class="alert-error"
+            >Пароли не совпадают</div>
+          </div>
+          <div class="form-group">
+            <button class="btn">Зарегистрироваться</button>
           </div>
         </div>
+
       </form>
 
       <div
         v-if="message"
         class="alert"
-        :class="successful ? 'alert-success' : 'alert-danger'"
-      >{{message}}</div>
+        :class="successful ? 'alert-success' : 'alert-error'">
+        {{message}}
+      </div>
+      <p v-if="!successful" class="registr">Уже есть аккаунт?
+        <router-link to="/login">
+          Войти
+        </router-link>
+
+      </p>
+      <p v-else class="registr">
+        <router-link to="/login">
+          Войти
+        </router-link>
+
+      </p>
     </div>
+
   </div>
 </template>
 
@@ -70,6 +103,7 @@ export default {
   data() {
     return {
       user: new User('', '', ''),
+      password2: '',
       submitted: false,
       successful: false,
       message: ''
@@ -78,7 +112,14 @@ export default {
   computed: {
     loggedIn() {
       return this.$store.state.auth.status.loggedIn;
-    }
+    },
+    notSamePasswords () {
+      if (this.user.password !== '' && this.password2 !== '') {
+        return (this.user.password !== this.password2)
+      } else {
+        return false
+      }
+    },
   },
   mounted() {
     if (this.loggedIn) {
@@ -90,7 +131,7 @@ export default {
       this.message = '';
       this.submitted = true;
       this.$validator.validate().then(isValid => {
-        if (isValid) {
+        if (isValid && !this.notSamePasswords) {
           this.$store.dispatch('auth/register', this.user).then(
             data => {
               this.message = data.message;
@@ -110,38 +151,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-label {
-  display: block;
-  margin-top: 10px;
-}
-
-.card-container.card {
-  max-width: 350px !important;
-  padding: 40px 40px;
-}
-
-.card {
-  background-color: #f7f7f7;
-  padding: 20px 25px 30px;
-  margin: 0 auto 25px;
-  margin-top: 50px;
-  -moz-border-radius: 2px;
-  -webkit-border-radius: 2px;
-  border-radius: 2px;
-  -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
-  -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
-  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
-}
-
-.profile-img-card {
-  width: 96px;
-  height: 96px;
-  margin: 0 auto 10px;
-  display: block;
-  -moz-border-radius: 50%;
-  -webkit-border-radius: 50%;
-  border-radius: 50%;
-}
-</style>

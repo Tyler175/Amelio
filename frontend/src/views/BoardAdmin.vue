@@ -1,8 +1,34 @@
 <template>
   <div class="container">
-    <header class="jumbotron">
-      <h3>{{content}}</h3>
-    </header>
+      <div v-if="currentUser" class="user-menu">
+        <li>
+          <router-link to="/today">To Do</router-link>
+        </li>
+        <li>
+          <router-link to="/tasks">Задачи</router-link>
+        </li>
+        <li>
+          <router-link to="/statistics">Статистика</router-link>
+        </li>
+        <li>
+          <router-link to="/projects">Проекты</router-link>
+        </li>
+        <li>
+          <router-link to="/profile">Мой профиль</router-link>
+        </li>
+        <li v-if="showModeratorBoard">
+          <router-link to="/mod">Панель модератора</router-link>
+        </li>
+        <li v-if="showAdminBoard">
+          <router-link to="/admin" class="active" @click.prevent>Панель администратора</router-link>
+        </li>
+      </div>
+    <div class="content">
+      <div>
+        <h3>{{content}}</h3>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -16,6 +42,25 @@ export default {
       content: ''
     };
   },
+  computed: {
+    currentUser() {
+      return this.$store.state.auth.user;
+    },
+    showAdminBoard() {
+      if (this.currentUser && this.currentUser.roles) {
+        return this.currentUser.roles.includes('ROLE_ADMIN');
+      }
+
+      return false;
+    },
+    showModeratorBoard() {
+      if (this.currentUser && this.currentUser.roles) {
+        return this.currentUser.roles.includes('ROLE_MODERATOR');
+      }
+
+      return false;
+    }
+  },
   mounted() {
     UserService.getAdminBoard().then(
       response => {
@@ -28,6 +73,9 @@ export default {
           error.toString();
       }
     );
+    if (!this.currentUser) {
+      this.$router.push('/login');
+    }
   }
 };
 </script>

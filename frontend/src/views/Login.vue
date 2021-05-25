@@ -3,46 +3,47 @@
     <div class="form">
 
       <form class="login-form" name="form" @submit.prevent="handleLogin">
+        <h1>Вход</h1>
         <div class="form-group">
-          <h1>Вход</h1>
           <input
             v-model="user.username"
-            v-validate="'required'"
+            v-validate="'required|min:3|max:20'"
             type="text"
             class="form-control"
             placeholder="Логин"
-            name="username"
+            name="логин"
           />
           <div
-            v-if="errors.has('username')"
-            class="alert alert-danger"
-            role="alert"
-          >Введите логин</div>
+              v-if="errors.has('логин')"
+              class="alert-error"
+          >{{errors.first('логин')}}</div>
         </div>
         <div class="form-group">
 
           <input
             v-model="user.password"
-            v-validate="'required'"
+            v-validate="'required|min:6|max:40'"
             type="password"
             class="form-control"
             placeholder="Пароль"
-            name="password"
+            name="пароль"
           />
           <div
-            v-if="errors.has('password')"
-            class="alert alert-danger"
-            role="alert"
-          >Введите пароль</div>
+              v-if="errors.has('пароль')"
+              class="alert-error"
+          >{{errors.first('пароль')}}</div>
         </div>
         <div class="form-group">
-          <button class="btn btn-primary btn-block" :disabled="loading">
-            <span v-show="loading" class="spinner-border spinner-border-sm"></span>
+          <button class="btn" :disabled="loading">
+            <span v-show="loading" class="spinner-border spinner-border-sm"></span><!--Not used yet-->
             <span>Войти</span>
           </button>
         </div>
         <div class="form-group">
-          <div v-if="message" class="alert alert-danger" role="alert">{{message}}</div>
+          <div v-if="message" class="alert alert-error" role="alert">
+            <div v-if="message === 'Bad credentials'">Неверный логин или пароль</div>
+            <div v-else>{{message}}</div>
+          </div>
         </div>
         <p class="registr">Нет аккаунта?
           <router-link to="/register">

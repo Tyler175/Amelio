@@ -21,6 +21,10 @@ public class Role {
 		this.name = name;
 	}
 
+	public Role(String name) {
+		this.name = ERole.valueOf(name);
+	}
+
 	public Integer getId() {
 		return id;
 	}
@@ -35,5 +39,9 @@ public class Role {
 
 	public void setName(ERole name) {
 		this.name = name;
+	}
+
+	public void setName(String name) {
+		this.name = ERole.valueOf(name);
 	}
 }

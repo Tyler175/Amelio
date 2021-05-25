@@ -1,6 +1,9 @@
 package com.amelio.backend.models;
 
+import com.fasterxml.jackson.annotation.*;
+
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.persistence.*;
@@ -23,6 +26,9 @@ public class User {
 	@Size(max = 20)
 	private String username;
 
+	@Size(max = 700)
+	private String description;
+
 	@NotBlank
 	@Size(max = 50)
 	@Email
@@ -32,11 +38,32 @@ public class User {
 	@Size(max = 120)
 	private String password;
 
+	private int timer;
+
+	@JsonIgnore
+	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(
+			name = "invite_project",
+			joinColumns = { @JoinColumn(name = "user_id") },
+			inverseJoinColumns = { @JoinColumn(name = "project_id") }
+	)
+	private Set<Project> invitations = new HashSet<>();
+
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(	name = "user_roles", 
 				joinColumns = @JoinColumn(name = "user_id"), 
 				inverseJoinColumns = @JoinColumn(name = "role_id"))
 	private Set<Role> roles = new HashSet<>();
+
+	//end of properties
+//	@ManyToMany(fetch = FetchType.LAZY)
+//	@JoinTable(
+//			name = "u_tasks",
+//			joinColumns = { @JoinColumn(name = "worker_id") },
+//			inverseJoinColumns = { @JoinColumn(name = "task_id") }
+//	)
+//	Set<Task> tasks = new HashSet<>();
+
 
 	public User() {
 	}
@@ -45,6 +72,14 @@ public class User {
 		this.username = username;
 		this.email = email;
 		this.password = password;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		User user = (User) o;
+		return Objects.equals(id, user.id);
 	}
 
 	public Long getId() {
@@ -61,6 +96,14 @@ public class User {
 
 	public void setUsername(String username) {
 		this.username = username;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public String getEmail() {
@@ -86,4 +129,28 @@ public class User {
 	public void setRoles(Set<Role> roles) {
 		this.roles = roles;
 	}
+
+	public int getTimer() {
+		return timer;
+	}
+
+	public Set<Project> getInvitations() {
+		return invitations;
+	}
+
+	public void setInvitations(Set<Project> invitations) {
+		this.invitations = invitations;
+	}
+
+	public void setTimer(int timer) {
+		this.timer = timer;
+	}
+
+	//	public Set<Task> getTasks() {
+//		return tasks;
+//	}
+//
+//	public void setTasks(Set<Task> tasks) {
+//		this.tasks = tasks;
+//	}
 }

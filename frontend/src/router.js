@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import Home from './views/Home.vue';
 import Login from './views/Login.vue';
 import Register from './views/Register.vue';
 
@@ -10,21 +9,42 @@ export const router = new Router({
   mode: 'history',
   routes: [
     {
-      path: '/',
-      name: 'home',
-      component: Home
-    },
-    {
-      path: '/home',
-      component: Home
-    },
-    {
       path: '/login',
       component: Login
     },
     {
       path: '/register',
       component: Register
+    },
+    {
+      path: '/',
+      component: () => import('./views/Today.vue')
+    },
+    {
+      path: '/today',
+      name: 'today',
+      component: () => import('./views/Today.vue')
+    },
+    {
+      path: '/tasks',
+      name: 'tasks',
+      component: () => import('./views/Tasks.vue')
+    },
+    {
+      path: '/statistics',
+      name: 'statistics',
+      // lazy-loaded
+      component: () => import('./views/Statistics.vue')
+    },
+    {
+      path: '/projects',
+      name: 'projects',
+      component: () => import('./views/Projects.vue')
+    },
+    {
+      path: '/project/:id',
+      name: 'project',
+      component: () => import('./views/Project.vue')
     },
     {
       path: '/profile',
@@ -44,11 +64,13 @@ export const router = new Router({
       // lazy-loaded
       component: () => import('./views/BoardModerator.vue')
     },
+
+
+
     {
-      path: '/user',
-      name: 'user',
-      // lazy-loaded
-      component: () => import('./views/BoardUser.vue')
+      path: '*',
+      name: 'notfound',
+      component: () => import('./views/NotFound.vue')
     }
   ]
 });
