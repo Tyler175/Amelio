@@ -1,3 +1,6 @@
+<style scoped>
+
+</style>
 <template>
   <div class="container">
       <div v-if="currentUser" class="user-menu">
@@ -41,15 +44,17 @@
             <option v-for="user in users" :key="user.id">{{user.email}}</option>
           </select>
         </div>
-        <div class="column" style="width:55%">
-          <div class="task" style="cursor: auto; width: 100%" v-if="user.username">{{user.username}} - {{user.email}}</div>
-          <div class="task" style="cursor: auto; width: 100%" v-else>Пользователь не выбран</div>
+        <div class="column" style="flex-grow: 1">
+          <div class="task" style="cursor: auto; flex-grow: 1; width: auto" v-if="user.username">{{user.username}} - {{user.email}}</div>
+          <div class="task" style="cursor: auto; flex-grow: 1; width: auto" v-else>Пользователь не выбран</div>
 
           <div class="row" v-if="user.username">
             <button v-bind:disabled="allowToEdit" @click="changeRole({id: 1})" v-bind:class="[hasRole === 1 ? 'button-g' : 'button-b']" style="width: auto">Исполнитель</button>
             <button v-bind:disabled="allowToEdit" @click="changeRole({id: 3})" v-bind:class="[hasRole === 3 ? 'button-g' : 'button-b']" style="width: auto">Менеджер</button>
             <button v-bind:disabled="allowToEdit" @click="changeRole({id: 2})" v-bind:class="[hasRole === 2 ? 'button-g' : 'button-b']" style="width: auto">Администратор</button>
-            <button v-bind:disabled="allowToEdit" @click="delUser"  class="button-r" style="width: auto">Удалить</button>
+          </div>
+          <div class="row" style="margin-top: 0" v-if="user.username">
+            <button v-bind:disabled="allowToEdit" @click="delUser"  class="button-r" style="width: auto">Удалить пользователя</button>
           </div>
         </div>
       </div>
