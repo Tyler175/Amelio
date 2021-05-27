@@ -202,7 +202,7 @@ export default {
             response => {
               this.del(this.work);
               response.data;
-              this.message = 'Задача удалена!'
+              this.message = 'Время работы удалено!'
               this.$emit('hide');
             },
             error => {
