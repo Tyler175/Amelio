@@ -43,7 +43,7 @@
         </div>
         <div class="row">
         <div class="column" style="margin-right: 50px">
-          <div class="fields" v-if="false">
+          <div class="fields" v-if="true">
             <div v-if="response" class="alert-error">{{response}}</div>
             <div class="row" style="margin: 5px 0">
               <div class="pas">Старый пароль: </div> <input type="password" v-model="oldPassword" style="height: 20px"/>
@@ -125,7 +125,11 @@ export default {
         UserService.isPasswordCorrect(this.oldPassword).then(
             response => {
               if (response.data) {
-                UserService.changePassword(this.currentUser.id,this.newPassword);
+                UserService.changePassword(this.currentUser.id,this.oldPassword,this.newPassword).then(
+                    response => {
+                      this.response = 'Пароль был изменен';
+                    }
+                );
               } else this.response = 'Неверный старый пароль'
 
             }

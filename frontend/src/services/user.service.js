@@ -152,7 +152,9 @@ class UserService {
   delProject(id){
     return axios.delete(API_URL + 'projects/' + id, { headers: authHeader() });
   }
-
+  changePassword(id, oldPassword, newPassword){
+    return axios.put(API_URL + 'users/' + id + '/' + oldPassword, {password: newPassword}, { headers: authHeader() });
+  }
   changeAbout(id, about){
     return axios.put(API_URL + 'profile/' + id, {description: about}, { headers: authHeader() });
   }
