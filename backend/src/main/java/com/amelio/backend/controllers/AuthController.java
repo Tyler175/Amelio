@@ -12,6 +12,8 @@ import com.amelio.backend.payload.request.SignupRequest;
 import com.amelio.backend.payload.response.JwtResponse;
 import com.amelio.backend.payload.response.MessageResponse;
 import com.amelio.backend.security.jwt.JwtUtils;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -51,6 +53,7 @@ public class AuthController {
 	@Autowired
 	JwtUtils jwtUtils;
 
+
 	@PostMapping("/signin")
 	public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
@@ -74,6 +77,19 @@ public class AuthController {
 
 	@PostMapping("/signup")
 	public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
+		int i = 1;
+		for (ERole role: ERole.values()) {
+			if (!roleRepository.existsByName(role)){
+
+				Role newRole = new Role(role);
+				newRole.setId(i);
+				roleRepository.save(newRole);
+
+				i+=1;
+			}
+		}
+
+
 		if (userRepository.existsByUsername(signUpRequest.getUsername())) {
 			return ResponseEntity
 					.badRequest()
@@ -120,7 +136,11 @@ public class AuthController {
 				}
 			});
 		}
-
+		if (userRepository.isTableEmpty() == 0) {
+			Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
+					.orElseThrow(() -> new RuntimeException("Ошибка: Роль не найдена."));
+			roles.add(adminRole);
+		}
 		user.setRoles(roles);
 		user.setDescription("О себе");
 		userRepository.save(user);
