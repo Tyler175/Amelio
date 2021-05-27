@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -85,4 +86,9 @@ public class WorkController {
 		return workRepo.save(workFromDb);
 	}
 
+	@DeleteMapping("{id}")
+	public void deleteWork(@PathVariable("id") Work work) {
+
+		workRepo.delete(work);
+	}
 }

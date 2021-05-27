@@ -216,9 +216,9 @@ export default {
     },
     formateQuantity(){
       return quant => {
-        let mm = quant%60;
+        let mm = quant%60 + '';
         if (mm < 10) mm = '0' + mm;
-        let hh = quant/60>>0;
+        let hh = quant/60>>0 + '';
         if (hh < 10) hh = '0' + hh;
         return  hh.slice(0,2) + ':' + mm.slice(0,2);
       }

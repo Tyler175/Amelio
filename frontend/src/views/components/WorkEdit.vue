@@ -87,10 +87,20 @@ export default {
         return  yy + '-' + mm + '-' + dd;
       }
     },
+
     dateValidate(){
-      if (this.end.length === 5 && this.start.length === 5) {
+      if (this.end.length !== 5 || this.start.length !== 5) {
+        return 'Пожалуйста, заполните время работы'
+      } else if(this.formatDate(new Date()) < this.formatDate(this.workDate)){
+         return 'Выбранная дата позже сегодняшней';
+      } else if(this.task.taskName){
+        // eslint-disable-next-line no-console
+        console.log(this.formatDate(this.task.task_start), this.formatDate(this.workDate));
+        if (this.formatDate(this.task.task_start) > this.formatDate(this.workDate)) return 'В это время у вас еще не было этой задачи';
+        else return '';//   ANOTHER TRUE RETURN
+      } else {
         return '';
-      } else return 'Пожалуйста, заполните время работы'
+      }
     }
   },
   mounted() {
