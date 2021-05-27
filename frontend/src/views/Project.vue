@@ -22,29 +22,34 @@ h3{
         <li>
           <router-link to="/profile">Мой профиль</router-link>
         </li>
-        <li v-if="showModeratorBoard">
+        <li v-if="isUserManager && false">
           <router-link to="/mod">Панель модератора</router-link>
         </li>
-        <li v-if="showAdminBoard">
+        <li v-if="isUserAdmin">
           <router-link to="/admin">Панель администратора</router-link>
         </li>
       </div>
 
     <div class="content">
+      <div class="action">
+        <router-link to="/profile">
+          <h2 style="margin: 0">{{ currentUser.username }}</h2>
+        </router-link>
+      </div>
       <div class="form" style="margin-top: 50px" v-if="areAllowed"> <!--areAllowed if workers are allowed to-->
         <h2>Проект не найден</h2>
       </div>
       <div v-else>
         <v-taskEdit v-if='!isHidden' v-on:hide="isHidden = true"
-                    :task="task" :post="post_task" :put="put_task" :del="del_task" :option="'project'" :employes="this.project.workers.concat(this.project.managers).concat(this.project.owner)"></v-taskEdit>
+                    :task="task" :post="post_task" :put="put_task" :del="del_task" :option="'project'" :employes="this.project.workers"></v-taskEdit>
         <div class="row">
-          <input v-bind:disabled="!isOwner" type="text" maxlength="30" v-autowidth="{maxWidth: '960px', minWidth: '20px', comfortZone: 0}"
+          <input v-bind:disabled="!isManager" type="text" maxlength="30" v-autowidth="{maxWidth: '960px', minWidth: '20px', comfortZone: 0}"
                  class="h1" style="margin-right: 30px; margin-bottom: 0"
                  v-model="project.name" v-on:input="changeName" />
 
-          <div v-if="isOwner || isManager" @click="active = 0" v-bind:class="[active === 0 ? 'button-g' : 'button-b']">Задачи</div>
-          <div v-if="isOwner || isManager" @click="active = 1" v-bind:class="[active === 1 ? 'button-g' : 'button-b']">Статистика</div>
-          <div v-if="isOwner || isManager" @click="active = 2" v-bind:class="[active === 2 ? 'button-g' : 'button-b']">Команда</div>
+          <div v-if="isManager" @click="active = 0" v-bind:class="[active === 0 ? 'button-g' : 'button-b']">Задачи</div>
+          <div v-if="isManager" @click="active = 1" v-bind:class="[active === 1 ? 'button-g' : 'button-b']">Статистика</div>
+          <div v-if="isManager" @click="active = 2" v-bind:class="[active === 2 ? 'button-g' : 'button-b']">Команда</div>
         </div>
         <div v-if="content" class="row">
           <h3>Упс, {{content}}</h3>
@@ -83,7 +88,7 @@ h3{
                         {{ task.taskName }}
                       </div>
                     </div>
-                    <div v-if="isOwner || isManager" class="plus-btn" @click="openEdit({parent: task})" data-content="Добавить подзадачу"></div>
+                    <div v-if="isManager" class="plus-btn" @click="openEdit({parent: task})" data-content="Добавить подзадачу"></div>
 
                 </div>
                 <div class="task-in-table subtask-in-table" v-for="child_task in children_open(task) " :key="child_task.id"
@@ -92,7 +97,7 @@ h3{
                   {{child_task.taskName}}
                 </div>
               </div>
-              <div v-if="isManager || isOwner" class="button-s" @click="openEdit(0)"
+              <div v-if="isManager" class="button-s" @click="openEdit(0)"
                    style="width: auto; margin-right: 0px; margin-left: -1px; border-radius: 0 0 0 5px;">
                 Добавить задачу
               </div>
@@ -127,7 +132,7 @@ h3{
         </div>
         <!--Команда-->
         <div v-else>
-          <div v-if="isOwner">
+          <div v-if="isManager">
             <div class="row"><h2 style="margin-bottom: 5px">Приглашения</h2></div>
             <v-invRow v-for="user in project.invitations" :key="user.id" :user="user" :action="delInv"></v-invRow>
 
@@ -136,35 +141,17 @@ h3{
                 <input class="select" type="text" maxlength="50" v-autowidth="{maxWidth: '400px', minWidth: '300px', comfortZone: 0}"
                        v-model="findUser" v-on:input="findUsers" />
                 <select class="select" v-model="selected" multiple v-bind:size="users.length > 0 ? users.length < 6 ? users.length : 5: 1" style="margin-top: -2px">
-                  <option v-for="user in users" :key="user.id">{{user.email}}</option>
+                  <option v-for="user in users" :key="user.id">{{user.username}} - {{user.email}}</option>
                 </select>
               </div>
               <div class="button-b" style="width: auto" @click="addInv">Пригласить {{selected[0]}}</div>
             </div>
           </div>
-          <div class="row drag-block">
-            <div class="column">
-              <h2>Исполнители</h2>
-              <input class="select" type="text" maxlength="50" v-model="sortW" style="margin-right: 0"/>
-              <div class='drop-zone' @drop='onDrop($event, 1)' @dragover.prevent @dragenter.prevent>
-                <div v-for='item in listOne' :key='item.user.id' class="drag-el" v-bind:draggable="isOwner" @dragstart='startDrag($event, item)'>
-                  {{ item.user.username }} - {{ item.user.email }}
-                </div>
-              </div>
-            </div>
-            <div class="column">
-              <h2>Менеджеры</h2>
-              <input class="select" type="text" maxlength="50" v-model="sortM" style="margin-right: 0"/>
-              <div class='drop-zone' @drop='onDrop($event, 2)' @dragover.prevent @dragenter.prevent @touchend='onDrop($event, 2)'>
-                <div v-for='item in listTwo' :key='item.user.id' class="drag-el" v-bind:draggable="isOwner" @dragstart='startDrag($event, item)'>
-                  {{ item.user.username }} - {{ item.user.email }}
-                </div>
-              </div>
-            </div>
-            <div class="column" v-bind:style="{ width: isOwner ? '' : '0' }">
-              <h2 v-if="isOwner">Удалить</h2>
-              <div v-if="isOwner" class='drop-zone' @drop='onDrop($event, 3)' @dragover.prevent @dragenter.prevent></div>
-            </div>
+          <h2>Сотрудники</h2>
+          <input class="select" type="text" maxlength="50" v-autowidth="{maxWidth: '400px', minWidth: '300px', comfortZone: 0}" v-model="sortM"/>
+          <div class="row" v-for="worker in workers" :key="worker.id">
+            <div class="task" style="cursor: auto">{{worker.username}} - {{worker.email}}</div>
+            <div class="button-r" @click="delWorker(worker)">Удалить</div>
           </div>
         </div>
       </div>
@@ -226,6 +213,7 @@ export default {
   },
   computed: {
     parents(){
+      if (!this.project.tasks) return [];
       return this.project.tasks.filter(item => (!item.parent))
           .filter(item =>
               (!this.interval_start || new Date(item.task_start).getTime() >= new Date(this.interval_start).getTime()) &&
@@ -240,7 +228,7 @@ export default {
           .filter(item => ((this.completed || !item.taskComplete) && (this.overdue || item.taskComplete || new Date(item.task_end).getTime() > new Date().getTime()) && (this.inWork || item.taskComplete || new Date(item.task_end).getTime() < new Date().getTime())))
           .sort(function(f, s) {return f.task_start > s.task_start ? 1 : -1});
     },
-
+    /*
     items () {
       return this.project.workers.map(function (item) {
         return {user: item, list: 1}
@@ -254,7 +242,10 @@ export default {
     listTwo () {
       return this.items.filter(item => (item.list === 2 && (item.user.username.toLowerCase().includes(this.sortM.toLowerCase()) || item.user.email.toLowerCase().includes(this.sortM.toLowerCase()) )))
     },
-
+    */
+    workers(){
+      return this.project.workers.filter(item => (item.username.toLowerCase().includes(this.sortM.toLowerCase()) || item.email.toLowerCase().includes(this.sortM.toLowerCase()) ));
+    },
     minDate(){
       return this.parents.length > 0 ? (new Date(this.parents.reduce(function (p, v) {
         return ( p < v.task_start ? p : v.task_start );
@@ -316,27 +307,24 @@ export default {
     currentUser() {
       return this.$store.state.auth.user;
     },
-    isOwner(){
-      return this.currentUser.id === this.project.owner.id
-    },
-    isManager(){
-      return this.project.managers.findIndex(item => item.id === this.currentUser.id)>=0
-    },
     isWorker(){
       return this.project.workers.findIndex(item => item.id === this.currentUser.id)>=0
     },
-    areAllowed(){
-      return !(this.isOwner || this.isManager || this.isWorker);
+    isManager(){
+      return this.isUserManager || this.isUserAdmin;
     },
-    showAdminBoard() {
+    areAllowed(){
+      return !(this.isManager || this.isWorker);
+    },
+    isUserAdmin() {
       if (this.currentUser && this.currentUser.roles) {
         return this.currentUser.roles.includes('ROLE_ADMIN');
       }
       return false;
     },
-    showModeratorBoard() {
+    isUserManager() {
       if (this.currentUser && this.currentUser.roles) {
-        return this.currentUser.roles.includes('ROLE_MODERATOR');
+        return this.currentUser.roles.includes('ROLE_MANAGER');
       }
       return false;
     }
@@ -358,15 +346,16 @@ export default {
     }
   },
   methods: {
+    /*
     startDrag(evt, item) {
-      if (!this.isOwner) return;
+      if (!this.isManager) return;
       evt.dataTransfer.dropEffect = 'move'
       evt.dataTransfer.effectAllowed = 'move'
       evt.dataTransfer.setData('itemID', item.user.id)
 
     },
     onDrop (evt, list) {
-      if (!this.isOwner) return;
+      if (!this.isManager) return;
       const itemID = evt.dataTransfer.getData('itemID')
       const item = this.items.find(item => item.user.id == itemID)
       if (list === 3){
@@ -405,7 +394,22 @@ export default {
         );
       }
     },
-
+    */
+    delWorker(worker){
+      if (!this.isManager) return;
+      this.project.workers.splice(this.project.workers.findIndex(i => i.id == worker.id),1)
+      UserService.changeUsers(this.project).then(
+          response => {
+            response.data;//not used yet
+          },
+          error => {
+            this.message =
+                (error.response && error.response.data && error.response.data.message) ||
+                error.message ||
+                error.toString();
+          }
+      );
+    },
     open(task){
       let parent = this.openParents.find(item => item.id === task.id);
       if (parent) {
@@ -416,8 +420,6 @@ export default {
       }
     },
     children(parent){
-      // eslint-disable-next-line no-console
-      console.log(this.maxDate);
       return this.children_task.filter(item => (item.parent.id === parent.id))
     },
     children_open(parent){
@@ -429,7 +431,7 @@ export default {
     },
 
     changeName(){
-      if (!this.isOwner) return;
+      if (!this.isManager) return;
       UserService.changeProjectName(this.project).then(
           response => {
             response.data;//not used yet
@@ -446,9 +448,9 @@ export default {
       if (this.findUser){
         UserService.getUsersByEmail(this.findUser).then(
             response => {
-              if (response.data.findIndex(item => item.email === this.currentUser.email) >= 0){response.data.splice(response.data.findIndex(item => item.email === this.currentUser.email),1)}
+              //if (response.data.findIndex(item => item.email === this.currentUser.email) >= 0){response.data.splice(response.data.findIndex(item => item.email === this.currentUser.email),1)}
               this.users = response.data.filter( function( el ) {
-                return this.project.workers.findIndex(item => item.id === el.id) < 0 && this.project.managers.findIndex(item => item.id === el.id) < 0 && this.project.invitations.findIndex(item => item.id === el.id) < 0;
+                return (this.project.workers.findIndex(item => item.id === el.id) < 0  &&  this.project.invitations.findIndex(item => item.id === el.id) < 0);
               }, this);
               this.selected = [];
             },
@@ -458,15 +460,21 @@ export default {
                   error.message ||
                   error.toString();
             }
-        );
+        ).catch(e => {
+          // eslint-disable-next-line no-console
+          console.log(e);
+        });
       } else{
         this.users = [];
       }
     },
     addInv(){
-      if (!this.isOwner) return;
+      if (!this.isManager) return;
       if (this.selected[0]){
-        this.project.invitations.push(this.users[this.users.findIndex(item => item.email === this.selected[0])]);
+        // eslint-disable-next-line no-console
+        console.log(this.selected[0]);
+        this.project.invitations.push(this.users[this.users.findIndex(item => item.email === this.selected[0].split(' - ')[1])]);
+        this.findUsers();
         UserService.changeInvitation(this.project).then(
             response => {
               response.data;//not used yet
@@ -482,7 +490,7 @@ export default {
       }
     },
     delInv(user){
-      if (!this.isOwner) return;
+      if (!this.isManager) return;
       this.project.invitations.splice(this.project.invitations.findIndex(item => item.id === user.id),1);
       UserService.changeInvitation(this.project).then(
           response => {

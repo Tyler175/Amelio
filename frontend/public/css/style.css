@@ -34,6 +34,14 @@
 
 .action{
   display: flex;
+  position: absolute;
+  right: 30px;
+  top: 20px;
+  align-items: center;
+}
+.action a {
+  text-decoration: none;
+  color: #1a1a1a;
 }
 
 .brand{
@@ -130,7 +138,7 @@
   outline: 0;
   background-color: #DCDCDC;
   width: 800px;
-  height: 250px;
+  height: 200px;
   border: 0;
   text-align: left;
   padding: 15px;
@@ -247,6 +255,8 @@
   border-radius: 5px;
   -webkit-transition: all 0.3s ease;
   transition: all 0.3s ease;
+}
+.button-g:not([disabled]), .button-b:not([disabled]), .button-p:not([disabled]), .button-s:not([disabled]), .button-r:not([disabled]){
   cursor: pointer;
 }
 
@@ -254,20 +264,20 @@
   margin-right: 25px;
   background-color: #15C9E2;
 }
-.button-g:hover{
+.button-g:hover:not([disabled]){
   background-color: #8919E1;
 }
 .button-b{
   margin-right: 25px;
   background-color: #669CEC;
 }
-.button-b:hover{
+.button-b:hover:not([disabled]){
   background-color: #8919E1;
 }
 .button-r{
   background-color: #FF4040;
 }
-.button-r:hover{
+.button-r:hover:not([disabled]){
   background-color: #FF7373;
 }
 .button-s{
@@ -276,7 +286,7 @@
   width: 280px;
   height: 30px;
 }
-.button-s:hover{
+.button-s:hover:not([disabled]){
   background-color: #8919E1;
 }
 
@@ -296,7 +306,7 @@
   font-weight: bold;
   text-align: center;
   padding: 5px 10px;
-  background-color: #e05177;
+  background-color: #FF4040;
   border: none;
   border-radius: 5px;
   -webkit-transition: all 0.3s ease;
@@ -304,11 +314,11 @@
   cursor: pointer;
 }
 .cross:hover{
-  background-color: #e31147;
+  background-color: #FF7373;
 }
 .cross2{
   margin-left: 15px;
-  background-color: #e05177;
+  background-color: #FF4040;
   border-radius: 10px;
   cursor: pointer;
   padding: 0 6px 1px 6px;
@@ -696,9 +706,9 @@ select{
 
 .logout{
   text-decoration: none;
-  margin:50px 0;
+  margin:30px 0;
   font-size: 20px;
-  padding: 10px 15px;
+  padding: 5px 15px;
   display: block;
   width: 70px;
   text-align: center;

@@ -17,7 +17,7 @@ import java.util.List;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+@PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
 @RequestMapping("/api/works")
 public class WorkController {
 	@Autowired

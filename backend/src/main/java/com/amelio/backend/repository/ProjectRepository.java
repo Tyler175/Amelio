@@ -12,8 +12,6 @@ import java.util.Optional;
 
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Long> {
-    List<Project> findAllByOwner(User user);
-    List<Project> findAllByManagersOrWorkers(User user, User user2);
-
+    List<Project> findAllByWorkers(User user);
     Optional<Project> findByTasks(Task task);
 }

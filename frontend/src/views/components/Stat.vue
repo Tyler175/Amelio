@@ -196,16 +196,16 @@ export default {
     currentUser() {
       return this.$store.state.auth.user;
     },
-    showAdminBoard() {
+    isUserAdmin() {
       if (this.currentUser && this.currentUser.roles) {
         return this.currentUser.roles.includes('ROLE_ADMIN');
       }
 
       return false;
     },
-    showModeratorBoard() {
+    isUserManager() {
       if (this.currentUser && this.currentUser.roles) {
-        return this.currentUser.roles.includes('ROLE_MODERATOR');
+        return this.currentUser.roles.includes('ROLE_MANAGER');
       }
 
       return false;

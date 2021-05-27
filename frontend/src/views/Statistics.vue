@@ -25,14 +25,19 @@ h3{
         <li>
           <router-link to="/profile">Мой профиль</router-link>
         </li>
-        <li v-if="showModeratorBoard">
+        <li v-if="isUserManager && false">
           <router-link to="/mod">Панель модератора</router-link>
         </li>
-        <li v-if="showAdminBoard">
+        <li v-if="isUserAdmin">
           <router-link to="/admin">Панель администратора</router-link>
         </li>
       </div>
     <div class="content">
+      <div class="action">
+        <router-link to="/profile">
+          <h2 style="margin: 0">{{ currentUser.username }}</h2>
+        </router-link>
+      </div>
       <h1>Статистика</h1>
       <div v-if="content" class="row">
         Упс, {{content}}
@@ -224,16 +229,16 @@ export default {
     currentUser() {
       return this.$store.state.auth.user;
     },
-    showAdminBoard() {
+    isUserAdmin() {
       if (this.currentUser && this.currentUser.roles) {
         return this.currentUser.roles.includes('ROLE_ADMIN');
       }
 
       return false;
     },
-    showModeratorBoard() {
+    isUserManager() {
       if (this.currentUser && this.currentUser.roles) {
-        return this.currentUser.roles.includes('ROLE_MODERATOR');
+        return this.currentUser.roles.includes('ROLE_MANAGER');
       }
 
       return false;

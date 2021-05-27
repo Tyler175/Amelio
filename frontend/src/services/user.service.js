@@ -98,7 +98,7 @@ class UserService {
     return axios.delete(API_URL + 'tasks/' + id, { headers: authHeader() });
   }
   postPlan(plan){return axios.post(API_URL + 'tasks/plan', {task: plan.task, user: plan.user, plan: plan.plan}, { headers: authHeader() })}
-  putPlan(plan, task){return axios.put(API_URL + 'tasks', {task: task, user: plan.user, plan: plan.plan}, { headers: authHeader() })}
+  putPlan(plan, task){return axios.put(API_URL + 'tasks/plan', {task: task, user: plan.user, plan: plan.plan}, { headers: authHeader() })}
   delPlan(plan){
     return axios.delete(API_URL + 'tasks/plan', { headers: authHeader(), params:{plan: plan} });
   }
@@ -111,14 +111,16 @@ class UserService {
   isPasswordCorrect(password){
     return axios.get(API_URL + 'users', { headers: authHeader(), params:{password: password}});
   }
-  changePassword(id, password){
-    {return axios.put(API_URL + 'users/'+id, {password: password}, { headers: authHeader() })}
+  changeRoles(user){
+    {return axios.put(API_URL + 'users/'+user.id, {roles: user.roles}, { headers: authHeader() })}
   }
 
   getUser() {
     return axios.get(API_URL + 'user', { headers: authHeader() });
   }
-
+  delUser(user){
+    return axios.delete(API_URL + 'users/' + user.id, { headers: authHeader() });
+  }
   getEditPermissions(id){
     return axios.get(API_URL + 'tasks/permissions/' + id, { headers: authHeader() });
   }
@@ -132,9 +134,6 @@ class UserService {
   getProject(id) {
     return axios.get(API_URL + 'projects/' + id, { headers: authHeader() });
   }
-  getUserProjects() {
-    return axios.get(API_URL + 'projects/userProjects', { headers: authHeader() });
-  }
   postProject(){
     return axios.post(API_URL + 'projects', {name: "Новый проект"}, { headers: authHeader() })
   }
@@ -145,7 +144,7 @@ class UserService {
     return axios.put(API_URL + 'projects/invitation/' + project.id, {invitations: project.invitations}, { headers: authHeader() });
   }
   changeUsers(project){
-    return axios.put(API_URL + 'projects/workers/' + project.id, {workers: project.workers, managers: project.managers}, { headers: authHeader() });
+    return axios.put(API_URL + 'projects/workers/' + project.id, {workers: project.workers}, { headers: authHeader() });
   }
   changeTasks(project){
     return axios.put(API_URL + 'projects/tasks/' + project.id, {tasks: project.tasks}, { headers: authHeader() });
