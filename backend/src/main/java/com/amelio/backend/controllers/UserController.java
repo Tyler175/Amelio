@@ -2,10 +2,12 @@ package com.amelio.backend.controllers;
 
 import com.amelio.backend.models.*;
 import com.amelio.backend.repository.*;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashSet;
@@ -44,6 +46,16 @@ public class UserController {
 	@GetMapping("{id}")
 	public User getOne(@PathVariable("id") User user) {
 		return user;
+	}
+
+	@PutMapping("{id}/{password}")
+	public User changePassword(@PathVariable("id") User userFromDb, @PathVariable("password") String password, @RequestBody User user){
+
+		if (new BCryptPasswordEncoder().matches(password, userFromDb.getPassword())){
+			userFromDb.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
+		}
+
+		return userRepo.save(userFromDb);
 	}
 
 	@PutMapping("{id}")
