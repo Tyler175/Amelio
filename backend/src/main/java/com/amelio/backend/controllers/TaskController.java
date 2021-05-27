@@ -18,6 +18,8 @@ public class TaskController {
     @Autowired
     UserRepository userRepo;
     @Autowired
+    RoleRepository roleRepo;
+    @Autowired
     TaskRepository taskRepo;
     @Autowired
     ProjectRepository projectRepository;
@@ -48,19 +50,21 @@ public class TaskController {
     }
 
     @GetMapping("/permissions/{id}")
-    public boolean[] getPermission(Authentication authentication,
-            @PathVariable("id") Task task) {
-        boolean isOwner;
-        boolean isManager = false;
+    public boolean getPermission(Authentication authentication,
+                                   @PathVariable("id") Task task) {
+        boolean allowToEdit;
         User user = userRepo.findByUsername(authentication.getName()).orElse(new User());
         if (task.getProject() != null) {
-            isOwner = task.getProject().getOwner().equals(user);
-            isManager = task.getProject().getManagers().contains(user);
-        } else isOwner = task.getWorkers().contains(user);
-        return new boolean[]{isOwner,isManager};
+            allowToEdit = task.getProject().getWorkers().contains(user) &&
+                    (user.getRoles().contains(roleRepo.findByName(ERole.ROLE_ADMIN).orElse(new Role("ROLE_ADMIN"))) ||
+                            user.getRoles().contains(roleRepo.findByName(ERole.ROLE_MANAGER).orElse(new Role("ROLE_ADMIN"))));
+        } else allowToEdit = task.getWorkers().contains(user);
+
+        return allowToEdit;
     }
+
     @GetMapping
-    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
     public List<Task> getTasks(Authentication authentication) {
         Optional<User> user = userRepo.findByUsername(authentication.getName());
         if(user.isPresent()){
@@ -93,7 +97,7 @@ public class TaskController {
             @PathVariable("id") Task taskFromDb,
             @RequestBody Task task
     ) {
-        BeanUtils.copyProperties(task, taskFromDb, "id");
+        BeanUtils.copyProperties(task, taskFromDb,"project", "id");
         Set<Task> childrenToDel = new HashSet<>();
         Set<Task> childrenToSave = new HashSet<>();
         for (Task child : taskRepo.findAllByParent(taskFromDb)) {
@@ -118,6 +122,9 @@ public class TaskController {
         }
         //remove from current if
         if (taskFromDb.getTaskComplete() || taskFromDb.getTask_start().compareTo(new Date()) > 0 || taskFromDb.getTask_end().compareTo(new Date()) < 0) taskFromDb.setCurrent(false);
+
+
+
         Task saved = taskRepo.save(taskFromDb);
         taskRepo.deleteAll(childrenToDel);
         taskRepo.saveAll(childrenToSave);
@@ -131,6 +138,7 @@ public class TaskController {
             project.orElse(new Project()).delTask(task);
         }
         //При переносе удаления в put помни про то, что у задачи может остаться незаконченный work
+        workRepo.deleteAllByTask(task);
         taskRepo.delete(task);
     }
 

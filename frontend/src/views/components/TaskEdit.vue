@@ -83,7 +83,6 @@ export default {
       workers: [],
       plans: [],
 
-      isOwner: false,
       isManager: false,
 
       findUser: ''
@@ -91,7 +90,7 @@ export default {
   },
   computed: {
     allowToEdit(){
-      return !((this.isManager || this.isOwner) && this.option!='view');
+      return !((this.isManager) && this.option!='view');
     },
     currentUser() {
       return this.$store.state.auth.user;
@@ -148,10 +147,7 @@ export default {
   mounted() {
     if (this.task.id) UserService.getEditPermissions(this.task.id).then(
         response => {
-          // eslint-disable-next-line no-console
-          console.log(response.data);
-          this.isOwner = response.data[0];
-          this.isManager = response.data[1];
+          this.isManager = response.data;
         },
         error => {
           this.message =
@@ -159,7 +155,7 @@ export default {
               error.message ||
               error.toString();
         });
-    else this.isOwner = true;
+    else this.isManager = true;
     this.start = this.task.task_start ? this.task.task_start : this.formatDate(new Date());
     this.end = this.task.task_end ? this.task.task_end : this.formatDate(new Date());
     this.workers = this.task.workers ? this.task.workers : [];
@@ -227,8 +223,6 @@ export default {
     addWorker(user){
       this.$set(this.workers, this.workers.length, user);
       this.plans.push({user: user, plan: ''});
-      // eslint-disable-next-line no-console
-      console.log(this.task);
       UserService.postPlan({user: user, task: this.task, plan: ''});
     },
     deleteTask(){

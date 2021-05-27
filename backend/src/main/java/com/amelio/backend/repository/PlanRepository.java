@@ -19,5 +19,7 @@ public interface PlanRepository extends JpaRepository<Plan, Long> {
     @Transactional
     void deleteAllByTaskIsNull();
     void deleteByUserAndTask (User user, Task task);
+    @Transactional
+    void deleteAllByUser (User user);
     Optional<Plan> findByUserAndTask(User user, Task task);
 }

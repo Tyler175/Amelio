@@ -33,22 +33,6 @@ public class Project {
     )
     private Set<User> invitations = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "manager_project",
-            joinColumns = { @JoinColumn(name = "project_id") },
-            inverseJoinColumns = { @JoinColumn(name = "user_id") }
-    )
-    private Set<User> managers = new HashSet<>();
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "owner_project",
-            joinColumns = { @JoinColumn(name = "project_id") },
-            inverseJoinColumns = { @JoinColumn(name = "user_id") }
-    )
-    private User owner;
-
     @OneToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "task_project",
@@ -60,12 +44,10 @@ public class Project {
     public Project() {
     }
 
-    public Project(@NotBlank @Size(max = 30) String name, Set<User> workers, Set<User> invitations, Set<User> managers, User owner, Set<Task> tasks) {
+    public Project(@NotBlank @Size(max = 30) String name, Set<User> workers, Set<User> invitations, Set<Task> tasks) {
         this.name = name;
         this.workers = workers;
         this.invitations = invitations;
-        this.managers = managers;
-        this.owner = owner;
         this.tasks = tasks;
     }
 
@@ -93,28 +75,19 @@ public class Project {
         this.workers = workers;
     }
 
+    public void addWorkers(User worker){
+        this.workers.add(worker);
+    }
+    public void addWorkers(Set<User> workers){
+        this.workers.addAll(workers);
+    }
+
     public Set<User> getInvitations() {
         return invitations;
     }
 
     public void setInvitations(Set<User> invitations) {
         this.invitations = invitations;
-    }
-
-    public Set<User> getManagers() {
-        return managers;
-    }
-
-    public void setManagers(Set<User> managers) {
-        this.managers = managers;
-    }
-
-    public User getOwner() {
-        return owner;
-    }
-
-    public void setOwner(User owner) {
-        this.owner = owner;
     }
 
     public Set<Task> getTasks() {

@@ -31,7 +31,7 @@ public class MainController {
 	}
 
 	@GetMapping("/today")
-	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+	@PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
 	public List<Task> todayTask(Authentication authentication) {
 		return taskRepo.findAllByWorkersAndTaskCompleteIsFalse(userRepo.findByUsername(authentication.getName()).orElse(new User()));
 	}
@@ -51,13 +51,13 @@ public class MainController {
 	}
 
 	@GetMapping("/user")
-	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+	@PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
 	public User getUser(Authentication authentication) {
 		return userRepo.findByUsername(authentication.getName()).orElse(new User());
 	}
 
 	@GetMapping("/statistics")
-	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+	@PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
 	public User stat(Authentication authentication) {
 		return userRepo.findByUsername(authentication.getName()).orElse(new User());
 	}
@@ -73,7 +73,7 @@ public class MainController {
 
 
 	@GetMapping("/mod")
-	@PreAuthorize("hasRole('MODERATOR')")
+	@PreAuthorize("hasRole('MANAGER')")
 	public String moderatorAccess() {
 		return "Панель модератора.";
 	}

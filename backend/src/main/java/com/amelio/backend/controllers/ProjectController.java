@@ -6,6 +6,7 @@ import com.amelio.backend.models.User;
 import com.amelio.backend.repository.ProjectRepository;
 import com.amelio.backend.repository.TaskRepository;
 import com.amelio.backend.repository.UserRepository;
+import com.amelio.backend.repository.WorkRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,26 +26,24 @@ public class ProjectController {
 	@Autowired
 	TaskRepository taskRepo;
 	@Autowired
+	WorkRepository workRepo;
+	@Autowired
 	ProjectRepository projectRepository;
 
 	@GetMapping("/invitations")
-	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+	@PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
 	public Set<Project> getInvitations(Authentication authentication) {
 		Set<Project> res = userRepo.findByUsername(authentication.getName()).orElse(new User()).getInvitations();
 		if (res.size() <= 0) res = null;
 		return res;
 	}
 
-	@GetMapping("/userProjects")
-	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-	public List<Project> userProjects(Authentication authentication) {
-		return projectRepository.findAllByOwner(userRepo.findByUsername(authentication.getName()).orElse(new User()));
-	}
+
 	@GetMapping
-	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+	@PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('ADMIN')")
 	public List<Project> projects(Authentication authentication) {
 		User user = userRepo.findByUsername(authentication.getName()).orElse(new User());
-		return projectRepository.findAllByManagersOrWorkers(user, user);
+		return projectRepository.findAllByWorkers(user);
 	}
 
 	@GetMapping("{id}")
@@ -54,7 +53,7 @@ public class ProjectController {
 
 	@PostMapping
 	public Project create(@RequestBody Project project, Authentication authentication) {
-		project.setOwner(userRepo.findByUsername(authentication.getName()).orElse(new User()));
+		project.addWorkers(userRepo.findByUsername(authentication.getName()).orElse(new User()));
 		return projectRepository.save(project);
 	}
 
@@ -82,15 +81,6 @@ public class ProjectController {
 				}
 			}
 		}
-		for (User manager : projectFromDb.getManagers())
-		{
-			for (User user : project.getInvitations()){
-				if(manager.equals(user)) {
-					ok = false;
-					break;
-				}
-			}
-		}
 		if (ok){
 			projectFromDb.setInvitations(project.getInvitations());
 		}
@@ -102,7 +92,6 @@ public class ProjectController {
 			@RequestBody Project project
 	) {
 		projectFromDb.setWorkers(project.getWorkers());
-		projectFromDb.setManagers(project.getManagers());
 		return projectRepository.save(projectFromDb);
 	}
 
@@ -117,8 +106,11 @@ public class ProjectController {
 
 	@DeleteMapping("{id}")
 	public void delete(@PathVariable("id") Project project) {
-
-		taskRepo.deleteAll(project.getTasks());
+		for (Task task:	project.getTasks()) {
+			workRepo.deleteAllByTask(task);
+			project.delTask(task);
+			taskRepo.delete(task);
+		}
 		projectRepository.delete(project);
 	}
 }
