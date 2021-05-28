@@ -49,8 +49,13 @@
               <div class="pas">Старый пароль: </div> <input type="password" v-model="oldPassword" style="height: 20px"/>
             </div>
             <div class="row" style="margin: 5px 0">
-              <div class="pas">Новый пароль: </div> <input type="password" v-model="newPassword" style="height: 20px"/>
+              <div class="pas">Новый пароль: </div> <input type="password" v-model="newPassword" name="пароль" v-validate="'required|min:6|max:40'" style="height: 20px"/>
             </div>
+            <div class="alert-error" v-if="this.newPassword.includes(' ')">Пароль не может содержать пробелы</div>
+            <div
+                v-else-if="errors.has('пароль')"
+                class="alert-error"
+            >{{errors.first('пароль')}}</div>
             <div class="row" style="margin: 5px 0">
               <div class="pas">Повторите новый пароль: </div> <input type="password" v-model="checkedPassword" style="height: 20px"/>
             </div>
@@ -122,18 +127,22 @@ export default {
   methods: {
     changePassword(){
       if (!this.notSamePasswords && this.newPassword !== '' && this.checkedPassword !== ''){
-        UserService.isPasswordCorrect(this.oldPassword).then(
-            response => {
-              if (response.data) {
-                UserService.changePassword(this.currentUser.id,this.oldPassword,this.newPassword).then(
-                    response => {
-                      this.response = 'Пароль был изменен';
-                    }
-                );
-              } else this.response = 'Неверный старый пароль'
+        this.$validator.validate().then(isValid => {
+          if (isValid && !this.newPassword.includes(' ')) {
+            UserService.isPasswordCorrect(this.oldPassword).then(
+                response => {
+                  if (response.data) {
+                    UserService.changePassword(this.currentUser.id,this.oldPassword,this.newPassword).then(
+                        response => {
+                          this.response = 'Пароль был изменен';
+                        }
+                    );
+                  } else this.response = 'Неверный старый пароль'
 
-            }
-        )
+                }
+            )
+          }
+        });
       } else this.response = 'Заполните все поля'
     },
     changeAbout(){

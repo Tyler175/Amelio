@@ -1,19 +1,16 @@
 package com.amelio.backend.controllers;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.validation.Valid;
-
 import com.amelio.backend.models.ERole;
+import com.amelio.backend.models.Role;
+import com.amelio.backend.models.User;
+import com.amelio.backend.payload.request.LoginRequest;
 import com.amelio.backend.payload.request.SignupRequest;
 import com.amelio.backend.payload.response.JwtResponse;
 import com.amelio.backend.payload.response.MessageResponse;
+import com.amelio.backend.repository.RoleRepository;
+import com.amelio.backend.repository.UserRepository;
 import com.amelio.backend.security.jwt.JwtUtils;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
+import com.amelio.backend.security.services.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,18 +18,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.amelio.backend.models.Role;
-import com.amelio.backend.models.User;
-import com.amelio.backend.payload.request.LoginRequest;
-import com.amelio.backend.repository.RoleRepository;
-import com.amelio.backend.repository.UserRepository;
-import com.amelio.backend.security.services.UserDetailsImpl;
+import javax.validation.Valid;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -136,6 +128,7 @@ public class AuthController {
 				}
 			});
 		}
+		System.out.println(userRepository.isTableEmpty());
 		if (userRepository.isTableEmpty() == 0) {
 			Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
 					.orElseThrow(() -> new RuntimeException("Ошибка: Роль не найдена."));

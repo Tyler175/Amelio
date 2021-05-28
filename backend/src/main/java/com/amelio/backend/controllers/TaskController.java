@@ -97,6 +97,11 @@ public class TaskController {
             @PathVariable("id") Task taskFromDb,
             @RequestBody Task task
     ) {
+        if (task.getParent() != null && !task.getTaskComplete()){
+            Task update = taskRepo.findById(task.getParent().getId()).orElse(new Task());
+            update.setTaskComplete(false);
+            taskRepo.save(update);
+        }
         BeanUtils.copyProperties(task, taskFromDb,"project", "id");
         Set<Task> childrenToDel = new HashSet<>();
         Set<Task> childrenToSave = new HashSet<>();

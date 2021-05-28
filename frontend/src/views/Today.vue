@@ -84,10 +84,23 @@ export default {
     'v-taskEdit' : TaskEdit
   },
   computed: {
+    formatDate() {
+      return date => {
+        let formDate = new Date(date);
+        let dd = formDate.getDate();
+        if (dd < 10) dd = '0' + dd;
+        let mm = formDate.getMonth() + 1;
+        if (mm < 10) mm = '0' + mm;
+        let yy = formDate.getFullYear();
+        if (yy < 10) yy = '0' + yy;
+        return  yy + '-' + mm + '-' + dd;
+      }
+
+    },
     filterTasks(){
     return this.tasks.filter(item =>
-          (new Date(item.task_start).getTime() <= new Date().getTime()) &&
-          (new Date(item.task_end).getTime() >= new Date().getTime()) && !item.current
+          (this.formatDate(item.task_start) <= this.formatDate(new Date())) &&
+          (this.formatDate(item.task_end) >= this.formatDate(new Date())) && !item.current
       );
     },
     currentUser() {

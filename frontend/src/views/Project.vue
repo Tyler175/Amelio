@@ -304,6 +304,20 @@ export default {
       return res;
     },
 
+    formatDate() {
+      return date => {
+        let formDate = new Date(date);
+        let dd = formDate.getDate();
+        if (dd < 10) dd = '0' + dd;
+        let mm = formDate.getMonth() + 1;
+        if (mm < 10) mm = '0' + mm;
+        let yy = formDate.getFullYear();
+        if (yy < 10) yy = '0' + yy;
+        return  yy + '-' + mm + '-' + dd;
+      }
+
+    },
+
     currentUser() {
       return this.$store.state.auth.user;
     },
@@ -520,10 +534,27 @@ export default {
     post_task(task){
       this.project.tasks.push(task);
       Object.assign(this.task, task);
+      if (task.parent && !task.taskComplete) this.parents.find(item => item.id == task.parent.id).taskComplete = false;
       this.task_update('Задача добавлена');
     },
     put_task(task){
       this.project.tasks.splice(this.project.tasks.findIndex(item => item.id == task.id), 1, task); //because otherwise computed property doesnt recomputed
+
+      if (this.children(task).length > 0){
+        this.children(task).forEach(item => {
+          if (task.taskComplete) item.taskComplete = true;
+          if (this.formatDate(task.task_start) > this.formatDate(item.task_end) || this.formatDate(task.task_end) < this.formatDate(item.task_start)) {
+            this.del_task(item);
+          } else {
+            if (this.formatDate(task.task_start) > this.formatDate(item.task_start)) item.task_start = task.task_start;
+            if (this.formatDate(task.task_end) < this.formatDate(item.task_end)) item.task_end = task.task_end;
+          }
+          item.parent = task;
+        })
+      } else {
+        if (task.parent && !task.taskComplete) this.parents.find(item => item.id == task.parent.id).taskComplete = false;
+      }
+
       this.task_update('Задача добавлена');
     },
     del_task(task){
