@@ -2,17 +2,14 @@ package com.amelio.backend.controllers;
 
 import com.amelio.backend.models.*;
 import com.amelio.backend.repository.*;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -94,19 +91,21 @@ public class UserController {
 			project.setInvitations(users);
 			projectRepo.save(project);
 		}
-		System.out.println("Projects were deleted");
+
 		for (Task task: taskRepo.findAllByWorkers(user)) {
 			Set<User> users = task.getWorkers();
 			users.remove(user);
 			task.setWorkers(users);
-			if(users.size() == 0 && !projectRepo.findByTasks(task).isPresent()) taskRepo.delete(task);
+			if(users.size() == 0 && !projectRepo.findByTasks(task).isPresent()) {
+				workRepo.deleteAllByTask(task);
+				taskRepo.delete(task);
+			}
 			else taskRepo.save(task);
 		}
-		System.out.println("Tasks were deleted");
+
 		planRepo.deleteAllByUser(user);
-		System.out.println("Plans were deleted");
+
 		//workRepo.deleteAllByUser(user);//it will disappear from statistic, maybe you should add isDel=true instead of deleting user from db
-		System.out.println("Works weren't deleted");
 		userRepo.delete(user);
 	}
 }
